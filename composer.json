@@ -1,0 +1,23 @@
+{
+  "name": "mheinzerling/databaseutils",
+  "description": "Some useful utilities for database access and modification",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Martin Heinzerling",
+      "email": "webmaster@mheinzerling.de"
+    }
+  ],
+  "require": {
+    "mheinzerling/stringutils": "1.0.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.2.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "mheinzerling": "src/"
+    }
+  }
+}
