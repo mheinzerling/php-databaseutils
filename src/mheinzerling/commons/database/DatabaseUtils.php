@@ -41,4 +41,9 @@ class DatabaseUtils
         }
         return $result;
     }
+	
+	public static function executeFile(\PDO $connection, $sqlFileName)
+    {
+        $connection->exec(file_get_contents($sqlFileName));
+    }
 }
