@@ -10,7 +10,7 @@ class DatabaseUtils
     {
         $data = DatabaseUtils::prepareObjects($data);
         $bind = ':' . implode(',:', array_keys($data));
-        $sql = 'INSERT INTO `' . $table . '`(' . implode(',', array_keys($data)) . ') ' . 'VALUES (' . $bind . ')';
+        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $bind . ')';
         $stmt = $conn->prepare($sql);
         $stmt->execute(array_combine(explode(',', $bind), array_values($data)));
     }
@@ -24,7 +24,7 @@ class DatabaseUtils
             $values .= "`" . $key . "`=':" . $key . "', ";
         }
         $values = substr($values, 0, -2);
-        $sql = 'INSERT INTO `' . $table . '`(' . implode(',', array_keys($data)) . ') ' . 'VALUES (' . $bind . ') ' .
+        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $bind . ') ' .
             ' ON DUPLICATE KEY UPDATE ' . $values;
         $stmt = $conn->prepare($sql);
         $stmt->execute(array_combine(explode(',', $bind), array_values($data)));
