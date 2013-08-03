@@ -42,6 +42,16 @@ class DatabaseUtils
         return $result;
     }
 
+    /**
+     * @return \PDOStatement
+     */
+    public static function exec(\PDO $connection, $query, $values)
+    {
+        $stmt = $connection->prepare($query);
+        $stmt->execute(self::prepareObjects($values));
+        return $stmt;
+    }
+
     public static function executeFile(\PDO $connection, $sqlFileName)
     {
         $connection->exec(file_get_contents($sqlFileName));
