@@ -30,7 +30,7 @@ class DatabaseUtils
         $stmt->execute(array_combine(explode(',', $bind), array_values($data)));
     }
 
-    private static function prepareObjects(array $data)
+    public static function prepareObjects(array $data)
     {
         $result = array();
         foreach ($data as $key => $value) {
@@ -41,8 +41,8 @@ class DatabaseUtils
         }
         return $result;
     }
-	
-	public static function executeFile(\PDO $connection, $sqlFileName)
+
+    public static function executeFile(\PDO $connection, $sqlFileName)
     {
         $connection->exec(file_get_contents($sqlFileName));
     }
