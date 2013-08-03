@@ -15,7 +15,12 @@ class LoggingPDOStatement
     public function execute(array $input_parameters = null)
     {
         $start = microtime(true);
-        $result = $this->statement->execute($input_parameters);
+        try {
+            $result = $this->statement->execute($input_parameters);
+        } catch (\PDOException $e) {
+            echo $this->statement->queryString;
+            throw $e;
+        }
         $time = microtime(true) - $start;
         LoggingPDO::$log[] = array('query' => '[P] ' . $this->statement->queryString, 'time' => round($time, 6));
         return $result;
