@@ -18,16 +18,20 @@ class DatabaseUtils
     public static function insertOrUpdateAssoc(\PDO $conn, $table, array $data)
     {
         $data = DatabaseUtils::prepareObjects($data);
-        $bind = ':' . implode(',:', array_keys($data));
-        $values = '';
+        $insertValues = ':' . implode(',:', array_keys($data));
+        $updateAssignment = '';
         foreach ($data as $key => $value) {
-            $values .= "`" . $key . "`=':" . $key . "', ";
+            $updateAssignment .= "`" . $key . "`=:u" . $key . ", ";
         }
-        $values = substr($values, 0, -2);
-        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $bind . ') ' .
-            ' ON DUPLICATE KEY UPDATE ' . $values;
+        $updateAssignment = substr($updateAssignment, 0, -2);
+        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $insertValues . ') ' .
+            ' ON DUPLICATE KEY UPDATE ' . $updateAssignment;
         $stmt = $conn->prepare($sql);
-        $stmt->execute(array_combine(explode(',', $bind), array_values($data)));
+
+        foreach ($data as $k => $v) {
+            $data['u' . $k] = $v;
+        }
+        $stmt->execute($data);
     }
 
     public static function prepareObjects(array $data)
