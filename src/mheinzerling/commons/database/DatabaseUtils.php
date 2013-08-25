@@ -60,4 +60,62 @@ class DatabaseUtils
     {
         $connection->exec(file_get_contents($sqlFileName));
     }
+
+    public static function insertMultiple(\PDO $connection, $table, array $data)
+    {
+        $queries = self::toInsertQueries($table, $data);
+
+        $connection->beginTransaction();
+        foreach ($queries as $query) {
+            $connection->exec($query);
+        }
+        $connection->commit();
+    }
+
+    /**
+     * Private.
+     *
+     * @param $table
+     * @param $data
+     * @return Array
+     */
+    public static function toInsertQueries($table, array $data, $chunkSize = 1000, $ignoreDuplicate = true)
+    {
+        $keys = array_keys(reset($data));
+
+        $chunks = array_chunk($data, $chunkSize);
+        $queries = array();
+        foreach ($chunks as $chunk) {
+            $values = array();
+            foreach ($chunk as $row) {
+                $keySortedData = array();
+                foreach ($keys as $key) {
+                    $content = $row[$key];
+                    if (is_null($content)) $content = "NULL";
+                    else if (!is_int($content)) $content = "'" . $content . "'";
+                    $keySortedData[] = $content;
+                }
+                $values[] = "(" . implode(",", $keySortedData) . ")";
+            }
+            $query = "INSERT " . ($ignoreDuplicate ? "IGNORE " : "") . "INTO `$table`(`" . implode("`,`", $keys) . "`) VALUES " . implode(",", $values);
+            $queries[] = $query;
+        }
+        return $queries;
+    }
+
+    public static function importDump(\PDO $connection, $sqlFile)
+    {
+        $content = file_get_contents($sqlFile);
+        $queries = explode(";\n", $content);
+        $connection->beginTransaction();
+        foreach ($queries as $query) {
+            try {
+                $connection->exec($query);
+            } catch (\PDOException $e) {
+                if ($e->getMessage() == "SQLSTATE[HY000]: General error: trying to execute an empty query") continue;
+                throw $e;
+            }
+        }
+        $connection->commit();
+    }
 }
