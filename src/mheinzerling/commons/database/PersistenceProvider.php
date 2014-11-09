@@ -5,16 +5,16 @@ namespace mheinzerling\commons\database;
 
 class PersistenceProvider
 {
-	/**
-	 * @var \PDO
-	 */
-	private static $connection;
+    /**
+     * @var \PDO
+     */
+    private static $connection;
 
-	/**
-	 * @return \PDO
-	 * @throws \Exception
-	 */
-	public static function getConnection()
+    /**
+     * @return \PDO
+     * @throws \Exception
+     */
+    public static function getConnection()
     {
         if (self::$connection == null) throw new \Exception("No default connection defined. Call PersistenceManager::setConnection"); //TODO
         return self::$connection;

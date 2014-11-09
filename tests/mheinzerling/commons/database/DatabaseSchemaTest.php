@@ -19,13 +19,12 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
 
 
         $schema = DatabaseSchema::fromDatabase($conn);
-        $expected = array(
-            'revision' => array(
-                'id' => array('Field' => 'id', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => 'PRI', 'Default' => null, 'Extra' => 'auto_increment'),
-                'class' => array('Field' => 'class', 'Type' => 'varchar(255)', 'Null' => 'NO', 'Key' => null, 'Default' => null, 'Extra' => null),
-                'lastExecution' => array('Field' => 'lastExecution', 'Type' => 'datetime', 'Null' => 'YES', 'Key' => null, 'Default' => null, 'Extra' => null)
-            )
-        );
+        $expected = array("revision" => new DatabaseTable("revision", array(
+            'id' => new DatabaseField('id', 'int(11)', false, true, false, null, true),
+            'class' => new DatabaseField('class', 'varchar(255)', false, false, false, null, false),
+            'lastExecution' => new DatabaseField('lastExecution', 'datetime', true, false, false, null, false)
+        ),
+            null, null, null));
         $this->assertEquals($expected, $schema->getTables());
 
     }
@@ -34,13 +33,12 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
     {
         $sql = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $schema = DatabaseSchema::fromSql($sql);
-        $expected = array(
-            'revision' => array(
-                'id' => array('Field' => 'id', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => 'PRI', 'Default' => null, 'Extra' => 'auto_increment'),
-                'class' => array('Field' => 'class', 'Type' => 'varchar(255)', 'Null' => 'NO', 'Key' => null, 'Default' => null, 'Extra' => null),
-                'lastExecution' => array('Field' => 'lastExecution', 'Type' => 'datetime', 'Null' => 'YES', 'Key' => null, 'Default' => null, 'Extra' => null)
-            )
-        );
+        $expected = array("revision" => new DatabaseTable("revision", array(
+            'id' => new DatabaseField('id', 'int(11)', false, true, false, null, true),
+            'class' => new DatabaseField('class', 'varchar(255)', false, false, false, null, false),
+            'lastExecution' => new DatabaseField('lastExecution', 'datetime', true, false, false, null, false)
+        ),
+            null, null, null));
         $this->assertEquals($expected, $schema->getTables());
     }
 
