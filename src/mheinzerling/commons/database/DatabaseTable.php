@@ -84,7 +84,7 @@ class DatabaseTable
 
         $fields = array();
         list($tableName, $remaining) = explode('(', $sql, 2);
-        $tableName = trim(str_replace(array("CREATE TABLE", "IF NOT EXISTS"), "", $tableName));
+        $tableName = trim(str_replace(array("CREATE TABLE", "IF NOT EXISTS", "`"), "", $tableName));
 
 
         $b = 0;
@@ -96,7 +96,14 @@ class DatabaseTable
             }
         }
         $allFields = substr($remaining, 0, $c);
-        $remaining = trim(trim(substr($remaining, $c), ")"));
+        $remaining = trim(substr($remaining, $c), ")");
+
+        $engine = ArrayUtils::findAndRemove($remaining, "@ENGINE\s*=\s*(\w+)@");
+        $charset = ArrayUtils::findAndRemove($remaining, "@DEFAULT CHARSET\s*=\s*(\w+)@");
+        $currentAutoincrement = ArrayUtils::findAndRemove($remaining, "@AUTO_INCREMENT\s*=\s*(\d+)@");
+
+        $remaining = trim($remaining);
+
         if (!empty($remaining)) throw new \Exception("TODO: rem >" . $remaining . "<");
 
         $carry = "";
@@ -108,31 +115,38 @@ class DatabaseTable
                 continue;
             }
 
+            $field = preg_replace('/\s\s+/', ' ', $field);
             $parts = explode(" ", $field, 3);
-            $fieldName = $parts[0];
-            $type = $parts[1];
-            $other = isset($parts[2]) ? $parts[2] : "";
-            $fieldName = trim($fieldName, '`');
-            $type = strtolower($type);
-            if ($type == "int") $type .= "(11)";
-            $fields[$fieldName] =
-                new DatabaseField($fieldName, $type,
-                    !StringUtils::contains($other, 'NOT NULL'),
-                    StringUtils::contains($other, 'PRIMARY KEY'),
-                    StringUtils::contains($other, 'UNIQUE'),
-                    null /*TODO*/,
-                    StringUtils::contains($other, 'AUTO_INCREMENT')
-                );
-            $other = trim(str_replace(array('NOT NULL', 'NULL', 'PRIMARY KEY', 'UNIQUE', 'AUTO_INCREMENT'), "", $other));
-            if (!empty($other)) throw new \Exception("TODO: other >" . $other . "<");
 
+            if ($parts[0] == 'PRIMARY') {
+                //TODO
+            } else if ($parts[0] == 'KEY') {
+                //TODO
+            } else if ($parts[0] == 'UNIQUE') {
+                //TODO
+            } else {
+                $fieldName = $parts[0];
+                $type = $parts[1];
+                $other = isset($parts[2]) ? $parts[2] : "";
+                $fieldName = trim($fieldName, '`');
+                $type = strtolower($type);
+                if ($type == "int") $type .= "(11)";
+                $fields[$fieldName] =
+                    new DatabaseField($fieldName, $type,
+                        !StringUtils::contains($other, 'NOT NULL'),
+                        StringUtils::contains($other, 'PRIMARY KEY'),
+                        StringUtils::contains($other, 'UNIQUE'),
+                        ArrayUtils::findAndRemove($other, "@DEFAULT '?(\w+)'?@"),
+                        StringUtils::contains($other, 'AUTO_INCREMENT')
+                    );
+                $other = trim(str_replace(array('NOT NULL', 'NULL', 'PRIMARY KEY', 'UNIQUE', 'AUTO_INCREMENT'), "", $other));
+                if (!empty($other)) throw new \Exception("TODO: other >" . $other . "<");
+            }
 
             $carry = "";
         }
 
-        $engine = null; /*TODO*/
-        $charset = null; /*TODO*/
-        $currentAutoincrement = null; /*TODO*/
+
         return new DatabaseTable($tableName, $fields, $engine, $charset, $currentAutoincrement);
     }
 

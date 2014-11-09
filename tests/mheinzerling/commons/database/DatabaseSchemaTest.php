@@ -79,4 +79,31 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('revision' => array('ALTER TABLE `revision` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY(`id`)')), $before->compare($after));
     }
 
+    public function testIndexFile()
+    {
+
+        $before = DatabaseSchema::fromSql($this->res("minimal.sql"));
+        $after = DatabaseSchema::fromSql($this->res("full.sql"));
+        $expected = array(
+            'credential' => array(
+                "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL",
+                "ALTER TABLE `credential` MODIFY `uid` VARCHAR(255) NOT NULL",
+                "ALTER TABLE `credential` MODIFY `user` INT(11) NULL"
+            ),
+            'user' => array(
+                "ALTER TABLE `user` MODIFY `active` INT(1) NOT NULL",
+                "ALTER TABLE `user` MODIFY `birthday` DATETIME NULL",
+                "ALTER TABLE `user` MODIFY `gender` ENUM('M','F') NULL",
+                "ALTER TABLE `user` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT",
+                "ALTER TABLE `user` MODIFY `nick` VARCHAR(100) NOT NULL"
+            )
+        );
+        $this->assertEquals($expected, $after->compare($before));
+    }
+
+    private function res($name)
+    {
+        $root = realpath(__DIR__ . "/../../../..");
+        return file_get_contents($root . "/resources/" . $name);
+    }
 }
