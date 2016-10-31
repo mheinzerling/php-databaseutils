@@ -9,7 +9,7 @@ class TestDatabaseConnection extends LoggingPDO
 
     public function __construct($dropDatabaseAtShutdown = true)
     {
-        parent::__construct('mysql:host=127.0.0.1', 'test', '');
+        parent::__construct('mysql:host=127.0.0.1', 'travis', '');
         $this->query("SET NAMES 'utf8'");
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->dbName = "test_" . microtime(true);

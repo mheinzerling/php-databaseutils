@@ -1,0 +1,16 @@
+language: php
+php:
+  - '7.0'
+  - '7.1'
+  - nightly
+services:
+  - mysql
+
+install:
+  - composer install --prefer-dist
+
+script:
+  - phpunit --coverage-clover build/logs/clover.xml
+
+after_success:
+  - ./vendor/bin/test-reporter
