@@ -3,7 +3,7 @@
 namespace mheinzerling\commons\database;
 
 
-class LoggingPDOStatement
+class LoggingPDOStatement extends \PDOStatement
 {
     /**
      * @var \PDOStatement
@@ -15,7 +15,7 @@ class LoggingPDOStatement
         $this->statement = $statement;
     }
 
-    public function execute(array $input_parameters = null):bool
+    public function execute($input_parameters = null):bool
     {
         $start = microtime(true);
         try {
@@ -29,9 +29,94 @@ class LoggingPDOStatement
         return $result;
     }
 
-    public function __call(string $function_name, array $parameters = null)
+    public function bindColumn($column, &$param, $type = null, $maxlen = null, $driverdata = null)
     {
-        return call_user_func_array([$this->statement, $function_name], $parameters);
+        return $this->statement->bindColumn($column, $param, $type, $maxlen, $driverdata);
     }
 
+    public function bindParam($parameter, &$variable, $data_type = \PDO::PARAM_STR, $length = null, $driver_options = null)
+    {
+        return $this->statement->bindParam($parameter, $variable, $data_type, $length, $driver_options);
+    }
+
+    public function bindValue($parameter, $value, $data_type = \PDO::PARAM_STR)
+    {
+        return $this->statement->bindValue($parameter, $value, $data_type);
+    }
+
+    public function closeCursor()
+    {
+        return $this->statement->closeCursor();
+    }
+
+    public function columnCount()
+    {
+        return $this->statement->columnCount();
+    }
+
+    public function debugDumpParams()
+    {
+        $this->statement->debugDumpParams();
+    }
+
+    public function errorCode():string
+    {
+        return $this->statement->errorCode();
+    }
+
+    public function errorInfo():array
+    {
+        return $this->statement->errorInfo();
+    }
+
+    public function fetch($fetch_style = null, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
+    {
+        return $this->statement->fetch($fetch_style, $cursor_orientation, $cursor_offset);
+    }
+
+    public
+    function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null):array
+    {
+        return $this->statement->fetchAll($fetch_style, $fetch_argument, $ctor_args);
+    }
+
+    public function fetchColumn($column_number = 0)
+    {
+        return $this->statement->fetchColumn($column_number);
+    }
+
+    public function fetchObject($class_name = null, $ctor_args = null)
+    {
+        return $this->statement->fetchObject($class_name, $ctor_args);
+    }
+
+    public function getAttribute($attribute)
+    {
+        return $this->statement->getAttribute($attribute);
+    }
+
+    public function getColumnMeta($column)
+    {
+        return $this->statement->getColumnMeta($column);
+    }
+
+    public function nextRowset():bool
+    {
+        return $this->statement->nextRowset();
+    }
+
+    public function rowCount():int
+    {
+        return $this->statement->rowCount();
+    }
+
+    public function setAttribute($attribute, $value):bool
+    {
+        return $this->statement->setAttribute($attribute, $value);
+    }
+
+    public function setFetchMode($mode, $param = null):bool
+    {
+        return $this->statement->setFetchMode($mode, $param);
+    }
 }
