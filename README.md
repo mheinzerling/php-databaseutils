@@ -6,7 +6,7 @@ Some useful utilities for database access and modification.
 
 ##Composer
     "require": {
-        "mheinzerling/databaseutils": "2.0.*"
+        "mheinzerling/databaseutils": "^2.0.1"
     },
     
 ##Changelog

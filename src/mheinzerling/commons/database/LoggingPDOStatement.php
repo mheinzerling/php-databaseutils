@@ -5,6 +5,9 @@ namespace mheinzerling\commons\database;
 
 class LoggingPDOStatement
 {
+    /**
+     * @var \PDOStatement
+     */
     private $statement;
 
     public function __construct(\PDOStatement $statement)
@@ -12,7 +15,7 @@ class LoggingPDOStatement
         $this->statement = $statement;
     }
 
-    public function execute(array $input_parameters = null)
+    public function execute(array $input_parameters = null):bool
     {
         $start = microtime(true);
         try {
@@ -22,13 +25,13 @@ class LoggingPDOStatement
             throw $e;
         }
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = array('query' => '[P] ' . $this->statement->queryString, 'time' => round($time, 6));
+        LoggingPDO::$log[] = ['query' => '[P] ' . $this->statement->queryString, 'time' => round($time, 6)];
         return $result;
     }
 
-    public function __call($function_name, $parameters)
+    public function __call(string $function_name, array $parameters = null)
     {
-        return call_user_func_array(array($this->statement, $function_name), $parameters);
+        return call_user_func_array([$this->statement, $function_name], $parameters);
     }
 
 }

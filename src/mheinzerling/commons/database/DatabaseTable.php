@@ -5,21 +5,40 @@ namespace mheinzerling\commons\database;
 
 use mheinzerling\commons\ArrayUtils;
 use mheinzerling\commons\StringUtils;
-use Symfony\Component\Console\Helper\Table;
 
 class DatabaseTable
 {
 
+    /**
+     * @var string
+     */
     private $name;
     /**
      * @var DatabaseField[]
      */
     private $fields;
+    /**
+     * @var string
+     */
     private $engine;
+    /**
+     * @var string
+     */
     private $charset;
+    /**
+     * @var int
+     */
     private $currentAutoincrement;
 
-    function __construct($name, array $fields, $engine, $charset, $currentAutoincrement)
+    /**
+     * DatabaseTable constructor.
+     * @param $name
+     * @param DatabaseField[] $fields
+     * @param string|null $engine
+     * @param string|null $charset
+     * @param int|null $currentAutoincrement
+     */
+    function __construct($name, array $fields, string $engine = null, string $charset = null, int $currentAutoincrement = null)
     {
         $this->charset = $charset;
         $this->currentAutoincrement = $currentAutoincrement;
@@ -28,12 +47,10 @@ class DatabaseTable
         $this->name = $name;
     }
 
-    /**
-     * @return DatabaseTable
-     */
-    public static function fromDatabase(\PDO $connection, $tableName)
+
+    public static function fromDatabase(\PDO $connection, string $tableName):DatabaseTable
     {
-        $fields = array();
+        $fields = [];
         $stmt = $connection->query("SHOW COLUMNS FROM " . $tableName);
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -44,47 +61,46 @@ class DatabaseTable
         return new DatabaseTable($tableName, $fields, null, null, null);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getFields()
+    /**
+     * @return DatabaseField[]
+     */
+    public function getFields(): array
     {
         return $this->fields;
     }
 
-    public function hasField($field)
+    public function hasField(string $field):bool
     {
         return isset($this->fields[$field]);
     }
 
-    /**
-     * @return DatabaseField
-     */
-    public function getField($field)
+    public function getField(string $field):DatabaseField
     {
         return $this->fields[$field];
     }
 
-    public function buildDropQuery()
+    public function buildDropQuery(): string
     {
         return 'DROP TABLE `' . $this->name . '`;';
     }
 
-    public function buildCreateQuery()
+    public function buildCreateQuery():string
     {
         return 'CREATE TABLE `' . $this->name . '` (...);'; //TODO
     }
 
-
-    public static function parseSqlCreate($sql)
+    public static function parseSqlCreate(string $sql): DatabaseTable
     {
         //CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL)
 
-        $fields = array();
+        $fields = [];
         list($tableName, $remaining) = explode('(', $sql, 2);
-        $tableName = trim(str_replace(array("CREATE TABLE", "IF NOT EXISTS", "`"), "", $tableName));
+        $tableName = trim(str_replace(["CREATE TABLE", "IF NOT EXISTS", "`"], "", $tableName));
 
 
         $b = 0;
@@ -139,25 +155,23 @@ class DatabaseTable
                         ArrayUtils::findAndRemove($other, "@DEFAULT '?(\w+)'?@"),
                         StringUtils::contains($other, 'AUTO_INCREMENT')
                     );
-                $other = trim(str_replace(array('NOT NULL', 'NULL', 'PRIMARY KEY', 'UNIQUE', 'AUTO_INCREMENT'), "", $other));
+                $other = trim(str_replace(['NOT NULL', 'NULL', 'PRIMARY KEY', 'UNIQUE', 'AUTO_INCREMENT'], "", $other));
                 if (!empty($other)) throw new \Exception("TODO: other >" . $other . "<");
             }
 
             $carry = "";
         }
-
-
         return new DatabaseTable($tableName, $fields, $engine, $charset, $currentAutoincrement);
     }
 
     /**
      * @param $other DatabaseTable
-     * @return String[]
+     * @return string[]
      */
     public function compare(DatabaseTable $other)
     {
         $fields = ArrayUtils::mergeArrayKeys($this->getFields(), $other->getFields());
-        $results = array();
+        $results = [];
         foreach ($fields as $field) {
             if (!$this->hasField($field)) {
                 $results[] = $other->getField($field)->buildDropQuery($this->name);

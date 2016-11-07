@@ -5,9 +5,12 @@ namespace mheinzerling\commons\database;
 
 class TestDatabaseConnection extends LoggingPDO
 {
+    /**
+     * @var string
+     */
     private $dbName;
 
-    public function __construct($dropDatabaseAtShutdown = true)
+    public function __construct(bool $dropDatabaseAtShutdown = true)
     {
         parent::__construct('mysql:host=127.0.0.1', 'travis', '');
         $this->query("SET NAMES 'utf8'");
@@ -15,15 +18,18 @@ class TestDatabaseConnection extends LoggingPDO
         $this->dbName = "test_" . microtime(true);
         if (!$this->query("CREATE DATABASE `" . $this->dbName . "`")) die('Could not create database >' . $this->dbName . '<');
         if (!$this->query("USE `" . $this->dbName . "`")) die('Could not use database >' . $this->dbName . '<');
-        if ($dropDatabaseAtShutdown) register_shutdown_function(array($this, "deleteDatabase"));
+        if ($dropDatabaseAtShutdown) register_shutdown_function([$this, "deleteDatabase"]);
     }
 
+    /**
+     * @return void
+     */
     public function deleteDatabase()
     {
         $this->exec("DROP DATABASE `" . $this->dbName . "`");
     }
 
-    public function tableStructure($tableName, $fetchType = \PDO::FETCH_NUM)
+    public function tableStructure(string $tableName, $fetchType = \PDO::FETCH_NUM):array
     {
         return $this->query("DESCRIBE `" . $tableName . "`")->fetchAll($fetchType);
     }

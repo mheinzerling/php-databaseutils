@@ -9,16 +9,16 @@ class DatabaseUtilTest extends \PHPUnit_Framework_TestCase
 {
     public function testQueryCreation()
     {
-        $data = array();
-        $data[] = array("a" => 1, "b" => "3", "c" => 3.756);
-        $data[] = array("b" => "3", "a" => 7, "c" => null);
-        $data[] = array("c" => 5.756, "a" => 4, "b" => "asdf");
+        $data = [];
+        $data[] = ["a" => 1, "b" => "3", "c" => 3.756];
+        $data[] = ["b" => "3", "a" => 7, "c" => null];
+        $data[] = ["c" => 5.756, "a" => 4, "b" => "asdf"];
         $queries = DatabaseUtils::toInsertQueries("tablename", $data);
-        $expected = array("INSERT IGNORE INTO `tablename`(`a`,`b`,`c`) VALUES " .
+        $expected = ["INSERT IGNORE INTO `tablename`(`a`,`b`,`c`) VALUES " .
             "(1,'3','3.756')," .
             "(7,'3',NULL)," .
-            "(4,'asdf','5.756')");
-        $this->assertEquals($expected, $queries);
+            "(4,'asdf','5.756')"];
+        static::assertEquals($expected, $queries);
     }
 
     /*public function testLoadDump()

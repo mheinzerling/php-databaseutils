@@ -8,7 +8,7 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
     {
         $conn = new TestDatabaseConnection();
         $schema = DatabaseSchema::fromDatabase($conn);
-        $this->assertEquals(array(), $schema->getTables());
+        static::assertEquals([], $schema->getTables());
     }
 
     public function testLoadFromDatabase()
@@ -19,13 +19,13 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
 
 
         $schema = DatabaseSchema::fromDatabase($conn);
-        $expected = array("revision" => new DatabaseTable("revision", array(
+        $expected = ["revision" => new DatabaseTable("revision", [
             'id' => new DatabaseField('id', 'int(11)', false, true, false, null, true),
             'class' => new DatabaseField('class', 'varchar(255)', false, false, false, null, false),
             'lastExecution' => new DatabaseField('lastExecution', 'datetime', true, false, false, null, false)
-        ),
-            null, null, null));
-        $this->assertEquals($expected, $schema->getTables());
+        ],
+            null, null, null)];
+        static::assertEquals($expected, $schema->getTables());
 
     }
 
@@ -33,20 +33,20 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
     {
         $sql = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $schema = DatabaseSchema::fromSql($sql);
-        $expected = array("revision" => new DatabaseTable("revision", array(
+        $expected = ["revision" => new DatabaseTable("revision", [
             'id' => new DatabaseField('id', 'int(11)', false, true, false, null, true),
             'class' => new DatabaseField('class', 'varchar(255)', false, false, false, null, false),
             'lastExecution' => new DatabaseField('lastExecution', 'datetime', true, false, false, null, false)
-        ),
-            null, null, null));
-        $this->assertEquals($expected, $schema->getTables());
+        ],
+            null, null, null)];
+        static::assertEquals($expected, $schema->getTables());
     }
 
     public function testCompareSchemaEquals()
     {
         $sql = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $schema = DatabaseSchema::fromSql($sql);
-        $this->assertEquals(array(), $schema->compare($schema));
+        static::assertEquals([], $schema->compare($schema));
     }
 
     public function testCompareSchemaTable()
@@ -55,8 +55,8 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
         $sql2 = "CREATE TABLE foo (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY);";
         $before = DatabaseSchema::fromSql($sql);
         $after = DatabaseSchema::fromSql($sql . $sql2);
-        $this->assertEquals(array('foo' => array('CREATE TABLE `foo` (...);')), $after->compare($before)); //TODO
-        $this->assertEquals(array('foo' => array('DROP TABLE `foo`;')), $before->compare($after));
+        static::assertEquals(['foo' => ['CREATE TABLE `foo` (...);']], $after->compare($before)); //TODO
+        static::assertEquals(['foo' => ['DROP TABLE `foo`;']], $before->compare($after));
     }
 
     public function testCompareSchemaColumn()
@@ -65,8 +65,8 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
         $sql2 = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`lastExecution` DATETIME NULL);";
         $before = DatabaseSchema::fromSql($sql);
         $after = DatabaseSchema::fromSql($sql2);
-        $this->assertEquals(array('revision' => array('ALTER TABLE `revision` DROP COLUMN `class`;')), $after->compare($before));
-        $this->assertEquals(array('revision' => array('ALTER TABLE `revision` ADD `class` ...;')), $before->compare($after));
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` DROP COLUMN `class`;']], $after->compare($before));
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` ADD `class` ...;']], $before->compare($after));
     }
 
     public function testCompareSchemaParams()
@@ -75,8 +75,8 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
         $sql2 = "CREATE TABLE revision (`id` INT(15) NULL, `class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $before = DatabaseSchema::fromSql($sql);
         $after = DatabaseSchema::fromSql($sql2);
-        $this->assertEquals(array('revision' => array('ALTER TABLE `revision` MODIFY `id` INT(15) NULL, DROP PRIMARY KEY')), $after->compare($before));
-        $this->assertEquals(array('revision' => array('ALTER TABLE `revision` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY(`id`)')), $before->compare($after));
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT(15) NULL, DROP PRIMARY KEY']], $after->compare($before));
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY(`id`)']], $before->compare($after));
     }
 
     public function testIndexFile()
@@ -84,21 +84,21 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
 
         $before = DatabaseSchema::fromSql($this->res("minimal.sql"));
         $after = DatabaseSchema::fromSql($this->res("full.sql"));
-        $expected = array(
-            'credential' => array(
+        $expected = [
+            'credential' => [
                 "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL",
                 "ALTER TABLE `credential` MODIFY `uid` VARCHAR(255) NOT NULL",
                 "ALTER TABLE `credential` MODIFY `user` INT(11) NULL"
-            ),
-            'user' => array(
+            ],
+            'user' => [
                 "ALTER TABLE `user` MODIFY `active` INT(1) NOT NULL",
                 "ALTER TABLE `user` MODIFY `birthday` DATETIME NULL",
                 "ALTER TABLE `user` MODIFY `gender` ENUM('M','F') NULL",
                 "ALTER TABLE `user` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT",
                 "ALTER TABLE `user` MODIFY `nick` VARCHAR(100) NOT NULL"
-            )
-        );
-        $this->assertEquals($expected, $after->compare($before));
+            ]
+        ];
+        static::assertEquals($expected, $after->compare($before));
     }
 
     private function res($name)

@@ -4,46 +4,58 @@ namespace mheinzerling\commons\database;
 
 /**
  * Based on http://www.coderholic.com/php-database-query-logging-with-pdo/
- * @package mheinzerling\commons\database
  */
 class LoggingPDO extends \PDO
 {
-    public static $log = array();
+    /**
+     * @var string[]
+     */
+    public static $log = [];
 
-    public function __construct($dsn, $username = null, $passwd = null, $options = null)
+    public function __construct(string $dsn, string $username = null, $passwd = null, $options = null)
     {
         parent::__construct($dsn, $username, $passwd, $options);
     }
 
 
-    public function query($query)
+    /**
+     * @param string $query
+     * @return \PDOStatement|bool
+     */
+    public function query(string $query)
     {
         $start = microtime(true);
         $result = parent::query($query);
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = array('query' => "[Q] " . $query, 'time' => round($time, 6));
+        LoggingPDO::$log[] = ['query' => "[Q] " . $query, 'time' => round($time, 6)];
         return $result;
     }
 
+    /**
+     * @param string $query
+     * @return int
+     */
     public function exec($query)
     {
         $start = microtime(true);
         $result = parent::exec($query);
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = array('query' => "[E] " . $query, 'time' => round($time, 6));
+        LoggingPDO::$log[] = ['query' => "[E] " . $query, 'time' => round($time, 6)];
         return $result;
     }
 
     /**
-     * @inheritdoc
+     * @param string $statement
+     * @param array $options
      * @return LoggingPDOStatement
      */
-    public function prepare($statement, $options = NULL)
+
+    public function prepare($statement, $options = null)
     {
-        return new LoggingPDOStatement(parent::prepare($statement));
+        return new LoggingPDOStatement(parent::prepare($statement)); //signature broken?
     }
 
-    public static function getLog()
+    public static function getLog() :string
     {
         $totalTime = 0;
         $result = '';
@@ -55,12 +67,15 @@ class LoggingPDO extends \PDO
         return $result;
     }
 
-    public static function clearLog()
+    /**
+     * @return void
+     */
+    public static function clearLog() //:void
     {
-        self::$log = array();
+        self::$log = [];
     }
 
-    public static function numberOfQueries()
+    public static function numberOfQueries() :int
     {
         return count(self::$log);
     }

@@ -4,27 +4,36 @@ namespace mheinzerling\commons\database;
 
 class DatabaseField
 {
+    /**
+     * @var string
+     */
     private $name;
+    /**
+     * @var string
+     */
     private $type;
     /**
-     * @var Boolean
+     * @var bool
      */
     private $null;
     /**
-     * @var Boolean
+     * @var bool
      */
     private $primary;
     /**
-     * @var Boolean
+     * @var bool
      */
     private $unique;
+    /**
+     * @var string
+     */
     private $default;
     /**
-     * @var Boolean
+     * @var bool
      */
     private $autoincrement;
 
-    function __construct($name, $type, $null, $primary, $unique, $default, $autoincrement)
+    function __construct(string $name, string $type, bool $null, bool $primary, bool $unique, string $default = null, bool $autoincrement)
     {
         $this->autoincrement = $autoincrement;
         $this->default = $default;
@@ -35,12 +44,12 @@ class DatabaseField
         $this->type = $type;
     }
 
-    public function buildDropQuery($tableName)
+    public function buildDropQuery(string $tableName):string
     {
         return 'ALTER TABLE `' . $tableName . '` DROP COLUMN `' . $this->name . '`;';
     }
 
-    public function buildAddQuery($tableName)
+    public function buildAddQuery(string $tableName):string
     {
         return 'ALTER TABLE `' . $tableName . '` ADD `' . $this->name . '` ...;'; //TODO
     }
@@ -48,11 +57,12 @@ class DatabaseField
 
     /**
      * @param DatabaseField $other
-     * @return String[]
+     * @param string $tableName
+     * @return string[]
      */
-    public function compare(DatabaseField $other, $tableName)
+    public function compare(DatabaseField $other, string $tableName) : array
     {
-        $results = array();
+        $results = [];
         $key = '';
 
         if (!$this->primary && $other->primary) {
