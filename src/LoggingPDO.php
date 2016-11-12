@@ -4,6 +4,7 @@ namespace mheinzerling\commons\database;
 
 /**
  * Based on http://www.coderholic.com/php-database-query-logging-with-pdo/
+ * @SuppressWarnings(PHPMD.CamelCaseParameterName)
  */
 class LoggingPDO extends \PDO
 {

@@ -2,7 +2,11 @@
 
 namespace mheinzerling\commons\database;
 
-
+/**
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CamelCaseParameterName)
+ * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+ */
 class LoggingPDOStatement extends \PDOStatement
 {
     /**
