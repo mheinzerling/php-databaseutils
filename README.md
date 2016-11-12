@@ -13,6 +13,8 @@ Some useful utilities for database access and modification.
 
 ### 3.0.0
 * improve package structure
+* overwrite TestDatabaseConnection parameter via environment variables
+* rename PersistenceProvider to ConnectionProvider
 
 ### 2.0.0
 * update to PHP 7

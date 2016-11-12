@@ -3,7 +3,8 @@
 namespace mheinzerling\commons\database;
 
 
-class PersistenceProvider
+//TODO add listener for connection changes
+class ConnectionProvider
 {
     /**
      * @var \PDO
@@ -14,9 +15,9 @@ class PersistenceProvider
      * @return \PDO
      * @throws \Exception
      */
-    public static function getConnection() :\PDO
+    public static function get() :\PDO
     {
-        if (self::$connection == null) throw new \Exception("No default connection defined. Call PersistenceManager::setConnection"); //TODO
+        if (self::$connection == null) throw new DatabaseException("No default connection defined. Call ConnectionProvider::set");
         return self::$connection;
     }
 
@@ -24,18 +25,16 @@ class PersistenceProvider
      * @param \PDO $connection
      * @return void
      */
-    public static function setConnection(\PDO $connection)//:void
+    public static function set(\PDO $connection)//:void
     {
         self::$connection = $connection;
-        //TODO listener
     }
 
     /**
      * @return void
      */
-    public static function resetConnection() //:void
+    public static function reset() //:void
     {
         self::$connection = null;
-        //TODO listener
     }
 }
