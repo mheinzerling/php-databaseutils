@@ -56,7 +56,7 @@ class DatabaseSchema
     {
         $myTables = $this->getTables();
         $otherTables = $otherSchema->getTables();
-        $tablesNames = ArrayUtils::mergeArrayKeys($myTables, $otherTables);
+        $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
         $results = [];
 
         foreach ($tablesNames as $name) {

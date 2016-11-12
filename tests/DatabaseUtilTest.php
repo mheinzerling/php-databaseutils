@@ -1,9 +1,7 @@
 <?php
 
-namespace mheinzerling\PostalCode;
+namespace mheinzerling\commons\database;
 
-
-use mheinzerling\commons\database\DatabaseUtils;
 
 class DatabaseUtilTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,7 +22,7 @@ class DatabaseUtilTest extends \PHPUnit_Framework_TestCase
     /*public function testLoadDump()
     {
         $connection = new TestDatabaseConnection();
-        DatabaseUtils::executeFile($connection, __DIR__ . "/../../../resources/test/geodbsql/postalcodes_DE_dump.sql");
+        DatabaseUtils::executeFile($connection, __DIR__ . "../resources/test/geodbsql/postalcodes_DE_dump.sql");
         $rows = $connection->query("SELECT COUNT(*) FROM postalcodes")->fetch(\PDO::FETCH_NUM)[0];
         $this->assertEquals(59227, $rows);
     }*/

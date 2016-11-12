@@ -103,7 +103,7 @@ class DatabaseSchemaTest extends \PHPUnit_Framework_TestCase
 
     private function res($name)
     {
-        $root = realpath(__DIR__ . "/../../../..");
+        $root = realpath(__DIR__ . "/..");
         return file_get_contents($root . "/resources/" . $name);
     }
 }

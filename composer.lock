@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "044afdbe4be329517276479f799d7887",
-    "content-hash": "73848c41ce4ca94d98403b8c588a1a2e",
+    "hash": "d777701cf93628232f0568ce33f73cb9",
+    "content-hash": "cdce7cdf2c0e193e4aafeeb6e2354f4d",
     "packages": [
         {
-            "name": "mheinzerling/stringutils",
-            "version": "2.1.1",
+            "name": "mheinzerling/arrayutils",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mheinzerling/php-stringutils.git",
-                "reference": "556915f5eecf1fe85f6ff73f94a1a7a55e9b056b"
+                "url": "https://github.com/mheinzerling/php-arrayutils.git",
+                "reference": "4eb0007251c7c68fb285540b0a464e023b935d7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mheinzerling/php-stringutils/zipball/556915f5eecf1fe85f6ff73f94a1a7a55e9b056b",
-                "reference": "556915f5eecf1fe85f6ff73f94a1a7a55e9b056b",
+                "url": "https://api.github.com/repos/mheinzerling/php-arrayutils/zipball/4eb0007251c7c68fb285540b0a464e023b935d7f",
+                "reference": "4eb0007251c7c68fb285540b0a464e023b935d7f",
                 "shasum": ""
             },
             "require": {
@@ -30,8 +30,48 @@
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "mheinzerling": "src/"
+                "psr-4": {
+                    "mheinzerling\\commons\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Heinzerling",
+                    "email": "webmaster@mheinzerling.de"
+                }
+            ],
+            "description": "This is a small library collection array utilities.",
+            "time": "2016-11-12 13:49:32"
+        },
+        {
+            "name": "mheinzerling/stringutils",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mheinzerling/php-stringutils.git",
+                "reference": "4d6d59efe2a38490d86c9c275377044bde9022c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mheinzerling/php-stringutils/zipball/4d6d59efe2a38490d86c9c275377044bde9022c4",
+                "reference": "4d6d59efe2a38490d86c9c275377044bde9022c4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master",
+                "phpunit/phpunit": "^5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mheinzerling\\commons\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -45,7 +85,7 @@
                 }
             ],
             "description": "StringUtils class is similar to Apache Commons StringUtils for Java. It will be extended incrementally.",
-            "time": "2016-11-07 15:24:32"
+            "time": "2016-11-12 13:19:14"
         }
     ],
     "packages-dev": [
@@ -2118,6 +2158,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "mheinzerling/stringutils": 20,
+        "mheinzerling/arrayutils": 20,
         "codeclimate/php-test-reporter": 20
     },
     "prefer-stable": false,
