@@ -6,10 +6,13 @@ Some useful utilities for database access and modification.
 
 ##Composer
     "require": {
-        "mheinzerling/databaseutils": "^2.0.2"
+        "mheinzerling/databaseutils": "^3.0.0"
     },
     
 ##Changelog
+
+### 3.0.0
+* improve package structure
 
 ### 2.0.0
 * update to PHP 7

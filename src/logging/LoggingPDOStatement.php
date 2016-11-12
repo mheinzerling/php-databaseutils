@@ -1,6 +1,6 @@
 <?php
 
-namespace mheinzerling\commons\database;
+namespace mheinzerling\commons\database\logging;
 
 /**
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)

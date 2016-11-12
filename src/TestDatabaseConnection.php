@@ -2,6 +2,7 @@
 
 namespace mheinzerling\commons\database;
 
+use mheinzerling\commons\database\logging\LoggingPDO;
 
 class TestDatabaseConnection extends LoggingPDO
 {
@@ -12,7 +13,7 @@ class TestDatabaseConnection extends LoggingPDO
 
     public function __construct(bool $dropDatabaseAtShutdown = true)
     {
-        parent::__construct('mysql:host=127.0.0.1', 'travis', '');
+        parent::__construct('mysql:host=127.0.0.1', 'travis', ''); //TODO get from ENV
         $this->query("SET NAMES 'utf8'");
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->dbName = "test_" . microtime(true);

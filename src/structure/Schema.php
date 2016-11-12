@@ -1,46 +1,46 @@
 <?php
 
-namespace mheinzerling\commons\database;
+namespace mheinzerling\commons\database\structure;
 
 
 use mheinzerling\commons\ArrayUtils;
 use mheinzerling\commons\StringUtils;
 
-class DatabaseSchema
+class Schema
 {
     /**
-     * @var DatabaseTable[]
+     * @var Table[]
      */
     private $tables;
 
     /**
-     * @return DatabaseTable[]
+     * @return Table[]
      */
     public function getTables():array
     {
         return $this->tables;
     }
 
-    public static function fromDatabase(\PDO $connection) :DatabaseSchema
+    public static function fromDatabase(\PDO $connection) :Schema
     {
-        $schema = new DatabaseSchema();
+        $schema = new Schema();
         $schema->tables = [];
 
         $stmt = $connection->query("SHOW TABLES");
         while ($table = $stmt->fetch(\PDO::FETCH_COLUMN)) {
-            $schema->tables[$table] = DatabaseTable::fromDatabase($connection, $table);
+            $schema->tables[$table] = Table::fromDatabase($connection, $table);
         }
         return $schema;
     }
 
-    public static function fromSql(string $sql):DatabaseSchema
+    public static function fromSql(string $sql):Schema
     {
-        $schema = new DatabaseSchema();
+        $schema = new Schema();
         $schema->tables = [];
         $queries = StringUtils::trimExplode(';', $sql);
         foreach ($queries as $query) {
             if (StringUtils::startsWith($query, "CREATE")) {
-                $table = DatabaseTable::parseSqlCreate($query);
+                $table = Table::parseSqlCreate($query);
                 $schema->tables[$table->getName()] = $table;
             }
             //TODO Indeces etc.
@@ -49,10 +49,10 @@ class DatabaseSchema
     }
 
     /**
-     * @param DatabaseSchema $otherSchema
+     * @param Schema $otherSchema
      * @return string[] operations to get from other to current schema
      */
-    public function compare(DatabaseSchema $otherSchema):array
+    public function compare(Schema $otherSchema):array
     {
         $myTables = $this->getTables();
         $otherTables = $otherSchema->getTables();

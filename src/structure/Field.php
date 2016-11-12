@@ -1,8 +1,8 @@
 <?php
-namespace mheinzerling\commons\database;
+namespace mheinzerling\commons\database\structure;
 
 
-class DatabaseField
+class Field
 {
     /**
      * @var string
@@ -56,11 +56,11 @@ class DatabaseField
 
 
     /**
-     * @param DatabaseField $other
+     * @param Field $other
      * @param string $tableName
      * @return string[]
      */
-    public function compare(DatabaseField $other, string $tableName) : array
+    public function compare(Field $other, string $tableName) : array
     {
         $results = [];
         $key = '';

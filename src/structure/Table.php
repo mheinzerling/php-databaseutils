@@ -1,12 +1,12 @@
 <?php
 
-namespace mheinzerling\commons\database;
+namespace mheinzerling\commons\database\structure;
 
 
 use mheinzerling\commons\ArrayUtils;
 use mheinzerling\commons\StringUtils;
 
-class DatabaseTable
+class Table
 {
 
     /**
@@ -14,7 +14,7 @@ class DatabaseTable
      */
     private $name;
     /**
-     * @var DatabaseField[]
+     * @var Field[]
      */
     private $fields;
     /**
@@ -33,7 +33,7 @@ class DatabaseTable
     /**
      * DatabaseTable constructor.
      * @param $name
-     * @param DatabaseField[] $fields
+     * @param Field[] $fields
      * @param string|null $engine
      * @param string|null $charset
      * @param int|null $currentAutoincrement
@@ -48,17 +48,17 @@ class DatabaseTable
     }
 
 
-    public static function fromDatabase(\PDO $connection, string $tableName):DatabaseTable
+    public static function fromDatabase(\PDO $connection, string $tableName):Table
     {
         $fields = [];
         $stmt = $connection->query("SHOW COLUMNS FROM " . $tableName);
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $fields[$row['Field']] = new DatabaseField($row['Field'], $row['Type'], $row['Null'] != 'NO',
+            $fields[$row['Field']] = new Field($row['Field'], $row['Type'], $row['Null'] != 'NO',
                 $row['Key'] == 'PRI', $row['Key'] == 'UNI', $row['Default'], $row['Extra'] == 'auto_increment');
         }
 
-        return new DatabaseTable($tableName, $fields, null, null, null);
+        return new Table($tableName, $fields, null, null, null);
     }
 
     public function getName(): string
@@ -67,7 +67,7 @@ class DatabaseTable
     }
 
     /**
-     * @return DatabaseField[]
+     * @return Field[]
      */
     public function getFields(): array
     {
@@ -79,7 +79,7 @@ class DatabaseTable
         return isset($this->fields[$field]);
     }
 
-    public function getField(string $field):DatabaseField
+    public function getField(string $field):Field
     {
         return $this->fields[$field];
     }
@@ -94,7 +94,7 @@ class DatabaseTable
         return 'CREATE TABLE `' . $this->name . '` (...);'; //TODO
     }
 
-    public static function parseSqlCreate(string $sql): DatabaseTable
+    public static function parseSqlCreate(string $sql): Table
     {
         //CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL)
 
@@ -148,7 +148,7 @@ class DatabaseTable
                 $type = strtolower($type);
                 if ($type == "int") $type .= "(11)";
                 $fields[$fieldName] =
-                    new DatabaseField($fieldName, $type,
+                    new Field($fieldName, $type,
                         !StringUtils::contains($other, 'NOT NULL'),
                         StringUtils::contains($other, 'PRIMARY KEY'),
                         StringUtils::contains($other, 'UNIQUE'),
@@ -161,14 +161,14 @@ class DatabaseTable
 
             $carry = "";
         }
-        return new DatabaseTable($tableName, $fields, $engine, $charset, $currentAutoincrement);
+        return new Table($tableName, $fields, $engine, $charset, $currentAutoincrement);
     }
 
     /**
-     * @param $other DatabaseTable
+     * @param $other Table
      * @return string[]
      */
-    public function compare(DatabaseTable $other)
+    public function compare(Table $other)
     {
         $fields = ArrayUtils::mergeAndSortArrayKeys($this->getFields(), $other->getFields());
         $results = [];

@@ -1,6 +1,6 @@
 <?php
 
-namespace mheinzerling\commons\database;
+namespace mheinzerling\commons\database\logging;
 
 /**
  * Based on http://www.coderholic.com/php-database-query-logging-with-pdo/
