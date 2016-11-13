@@ -20,7 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "mheinzerling\\commons\\database\\": "src/"
+      "mheinzerling\\commons\\database\\": ["src/","testsrc/"]
     }
   }
 }

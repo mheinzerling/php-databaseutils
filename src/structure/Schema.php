@@ -6,7 +6,7 @@ namespace mheinzerling\commons\database\structure;
 use mheinzerling\commons\ArrayUtils;
 use mheinzerling\commons\StringUtils;
 
-class Schema
+class Schema //TODO rename database
 {
     /**
      * @var Table[]

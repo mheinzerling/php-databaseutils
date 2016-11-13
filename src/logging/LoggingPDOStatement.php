@@ -10,12 +10,17 @@ namespace mheinzerling\commons\database\logging;
 class LoggingPDOStatement extends \PDOStatement
 {
     /**
+     * @var LoggingPDO
+     */
+    private $pdo;
+    /**
      * @var \PDOStatement
      */
     private $statement;
 
-    public function __construct(\PDOStatement $statement)
+    public function __construct(LoggingPDO $pdo, \PDOStatement $statement)
     {
+        $this->pdo = $pdo;
         $this->statement = $statement;
     }
 
@@ -25,11 +30,15 @@ class LoggingPDOStatement extends \PDOStatement
         try {
             $result = $this->statement->execute($input_parameters);
         } catch (\PDOException $e) {
-            echo $this->statement->queryString;
+            $time = microtime(true) - $start;
+            ob_start();
+            $this->debugDumpParams();
+            $this->pdo->log("X", ob_get_clean(), $time, 0);
             throw $e;
         }
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = ['query' => '[P] ' . $this->statement->queryString, 'time' => round($time, 6)];
+        $this->pdo->log("P", $this->statement->queryString, $time, $this->rowCount());
+
         return $result;
     }
 
@@ -78,9 +87,12 @@ class LoggingPDOStatement extends \PDOStatement
         return $this->statement->fetch($fetch_style, $cursor_orientation, $cursor_offset);
     }
 
-    public
-    function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null):array
+    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null):array
     {
+        //no idea why I neet this hack
+        if ($fetch_style == null) return $this->statement->fetchAll();
+        if ($fetch_argument == null) return $this->statement->fetchAll($fetch_style);
+        if ($ctor_args == null) return $this->statement->fetchAll($fetch_style, $fetch_argument);
         return $this->statement->fetchAll($fetch_style, $fetch_argument, $ctor_args);
     }
 

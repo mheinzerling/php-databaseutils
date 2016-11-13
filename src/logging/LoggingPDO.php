@@ -11,7 +11,7 @@ class LoggingPDO extends \PDO
     /**
      * @var string[]
      */
-    public static $log = [];
+    private $log = [];
 
     public function __construct(string $dsn, string $username = null, $passwd = null, $options = null)
     {
@@ -28,7 +28,7 @@ class LoggingPDO extends \PDO
         $start = microtime(true);
         $result = parent::query($query);
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = ['query' => "[Q] " . $query, 'time' => round($time, 6)];
+        $this->log("Q", $query, $time, $result !== false);
         return $result;
     }
 
@@ -41,7 +41,7 @@ class LoggingPDO extends \PDO
         $start = microtime(true);
         $result = parent::exec($query);
         $time = microtime(true) - $start;
-        LoggingPDO::$log[] = ['query' => "[E] " . $query, 'time' => round($time, 6)];
+        $this->log("E", $query, $time, $result);
         return $result;
     }
 
@@ -53,32 +53,43 @@ class LoggingPDO extends \PDO
 
     public function prepare($statement, $options = null)
     {
-        return new LoggingPDOStatement(parent::prepare($statement)); //signature broken?
+        return new LoggingPDOStatement($this, parent::prepare($statement)); //signature broken?
     }
 
-    public static function getLog() :string
+    /**
+     * @param string $type
+     * @param string $query
+     * @param int $timeInMillies
+     * @param int|bool $result
+     */
+    public function log(string $type, string $query, int $timeInMillies, $result)
+    {
+        $this->log[] = ['query' => "[" . $type . "] " . $query, 'time' => round($timeInMillies, 6), 'result' => $result];
+    }
+
+    public function getLog() :string
     {
         $totalTime = 0;
         $result = '';
-        foreach (self::$log as $entry) {
+        foreach ($this->log as $entry) {
             $totalTime += $entry['time'];
-            $result .= str_pad($entry['time'], 10, " ", STR_PAD_LEFT) . ' - ' . $entry['query'] . "\n";
+            $result .= str_pad($entry['time'], 10, " ", STR_PAD_LEFT) . ' - [' . $entry['result'] . '] - ' . $entry['query'] . "\n";
         }
-        $result .= str_pad($totalTime, 10, " ", STR_PAD_LEFT) . ' - ' . count(self::$log) . "\n";
+        $result .= str_pad($totalTime, 10, " ", STR_PAD_LEFT) . ' - ' . count($this->log) . "\n";
         return $result;
     }
 
     /**
      * @return void
      */
-    public static function clearLog() //:void
+    public function clearLog() //:void
     {
-        self::$log = [];
+        $this->log = [];
     }
 
-    public static function numberOfQueries() :int
+    public function numberOfQueries() :int
     {
-        return count(self::$log);
+        return count($this->log);
     }
 
 }
