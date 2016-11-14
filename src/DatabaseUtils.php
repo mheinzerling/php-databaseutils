@@ -72,24 +72,23 @@ class DatabaseUtils
         return $stmt;
     }
 
-    public static function executeFile(\PDO $connection, string $sqlFileName):int
-    {
-        return $connection->exec(file_get_contents($sqlFileName));
-    }
 
-    public static function importDump(\PDO $connection, string $sqlFile):bool
+    public static function importDump(\PDO $pdo, string $sqlFile):bool
     {
         $content = file_get_contents($sqlFile);
         $queries = explode(";\n", $content);
-        $connection->beginTransaction();
+        $pdo->beginTransaction();
         foreach ($queries as $query) {
+            $query = trim($query);
             try {
-                $connection->exec($query);
+                if (StringUtils::startsWith($query, "/*!50503 select")) continue;
+                if (StringUtils::startsWith($query, "SELECT")) continue;
+                $pdo->exec($query);
             } catch (\PDOException $e) {
                 if ($e->getMessage() == "SQLSTATE[HY000]: General error: trying to execute an empty query") continue;
                 throw $e;
             }
         }
-        return $connection->commit();
+        return $pdo->commit();
     }
 }

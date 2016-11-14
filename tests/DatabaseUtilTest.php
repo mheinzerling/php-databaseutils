@@ -72,15 +72,12 @@ X - 1
         static::assertEquals([["a" => "1", "b" => "3", "c" => "3.756"],
             ["a" => "5", "b" => "asdf", "c" => "2016-01-17 00:00:00"],
             ["a" => "7", "b" => "3", "c" => null]], $pdo->query("SELECT * FROM `foo` ORDER BY `a`")->fetchAll(\PDO::FETCH_ASSOC));
-
-
     }
 
-    /*public function testLoadDump()
+    public function testImportDump()
     {
-        $connection = new TestDatabaseConnection();
-        DatabaseUtils::executeFile($connection, __DIR__ . "../resources/test/geodbsql/postalcodes_DE_dump.sql");
-        $rows = $connection->query("SELECT COUNT(*) FROM postalcodes")->fetch(\PDO::FETCH_NUM)[0];
-        $this->assertEquals(59227, $rows);
-    }*/
+        $pdo = new TestDatabaseConnection();
+        static::assertEquals(true, DatabaseUtils::importDump($pdo, __DIR__ . "/../resources/employees.sql"));
+        static::assertEquals([['dept_no', 'char(4)', 'NO', 'PRI', null, ''], ['dept_name', 'varchar(40)', 'NO', 'UNI', null, '']], $pdo->tableStructure("departments"));
+    }
 }
