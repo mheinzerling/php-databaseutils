@@ -49,4 +49,13 @@ class TestDatabaseConnection extends LoggingPDO
         return $this->query("DESCRIBE `" . $tableName . "`")->fetchAll($fetchType);
     }
 
+    public function getAssertableLog()
+    {
+        $withoutTime = preg_replace("@\d+\.\d+@", "X", $this->getLog());
+        $withoutStartingWhitespace = preg_replace("@^\s+@m", "", $withoutTime);
+        $fixStartingZeroTime = preg_replace("@^0@m", "X", $withoutStartingWhitespace);
+        $withoutWindowsLinebreak = str_replace("\r", "", $fixStartingZeroTime);
+        return $withoutWindowsLinebreak;
+    }
+
 }

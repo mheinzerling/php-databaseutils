@@ -3,101 +3,78 @@
 namespace mheinzerling\commons\database;
 
 
+use mheinzerling\commons\ArrayUtils;
+use mheinzerling\commons\StringUtils;
+
 class DatabaseUtils
 {
+    const DUPLICATE_FAIL = 0;
+    const DUPLICATE_IGNORE = 1;
+    const DUPLICATE_UPDATE = 2;
 
-    public static function insertAssoc(\PDO $conn, string $table, array $data):bool
+    public static function insertAssoc(\PDO $pdo, string $table, array $data, int $onDuplicate = self::DUPLICATE_FAIL):int
     {
-        $data = DatabaseUtils::prepareObjects($data);
-        $bind = ':' . implode(',:', array_keys($data));
-        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $bind . ')';
-        $stmt = $conn->prepare($sql);
-        return $stmt->execute(array_combine(explode(',', $bind), array_values($data)));
+        $keys = array_keys($data);
+        $sql = self::startInsert($table, $keys, $onDuplicate);
+        $sql .= '(' . ':' . implode(',:', $keys) . ')';
+        return self::onDuplicateAndExec($pdo, $onDuplicate, $keys, $sql, $data);
     }
 
-    public static function insertOrUpdateAssoc(\PDO $conn, string $table, array $data):bool
+    public static function insertMultiple(\PDO $pdo, string $table, array $keys, array $datas, int $onDuplicate = self::DUPLICATE_FAIL):int
     {
-        $data = DatabaseUtils::prepareObjects($data);
-        $insertValues = ':' . implode(',:', array_keys($data));
-        $updateAssignment = '';
-        foreach ($data as $key => $value) {
-            $updateAssignment .= "`" . $key . "`=:u" . $key . ", ";
-        }
-        $updateAssignment = substr($updateAssignment, 0, -2);
-        $sql = 'INSERT INTO `' . $table . '`(`' . implode('`,`', array_keys($data)) . '`) ' . 'VALUES (' . $insertValues . ') ' .
-            ' ON DUPLICATE KEY UPDATE ' . $updateAssignment;
-        $stmt = $conn->prepare($sql);
-
-        foreach ($data as $k => $v) {
-            $data['u' . $k] = $v;
-        }
-        return $stmt->execute($data);
+        $sql = self::startInsert($table, $keys, $onDuplicate);
+        $row = "(" . substr(str_repeat("?, ", count($keys)), 0, -2) . "), ";
+        $sql .= substr(str_repeat($row, count($datas)), 0, -2);
+        foreach ($datas as &$data) ArrayUtils::fixOrderByKey($keys, $data);
+        return self::onDuplicateAndExec($pdo, $onDuplicate, $keys, $sql, array_values(ArrayUtils::flatten($datas)));
     }
 
-    public static function prepareObjects(array $data):array
+    private static function startInsert(string $table, array $keys, int $onDuplicate):string
     {
-        $result = [];
-        foreach ($data as $key => $value) {
+        $sql = 'INSERT ';
+        if ($onDuplicate == self::DUPLICATE_IGNORE) $sql .= "IGNORE ";
+        $sql .= 'INTO `' . $table . '`(`' . implode('`,`', $keys) . '`) ';
+        $sql .= 'VALUES ';
+        return $sql;
+    }
+
+    private static function onDuplicateAndExec(\PDO $pdo, int $onDuplicate, array $keys, string $sql, array $params):int
+    {
+        if ($onDuplicate == self::DUPLICATE_UPDATE) {
+            /** @noinspection PhpUnusedParameterInspection */
+            $updateAssignment = StringUtils::implode(", ", $keys, function ($_, $key) {
+                return "`" . $key . "`=VALUES(`" . $key . "`)";
+            });
+            $sql .= ' ON DUPLICATE KEY UPDATE ' . $updateAssignment;
+        }
+        $stmt = self::exec($pdo, $sql, $params);
+        return $stmt->rowCount();
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    private static function prepareObjects(array &$data)
+    {
+        foreach ($data as $key => &$value) {
             if ($value instanceof \DateTime) {
                 $value = $value->format("Y-m-d H:i:s");
             }
-            $result[$key] = $value;
         }
-        return $result;
     }
 
-    public static function exec(\PDO $connection, string $query, array $values):\PDOStatement
+    public static function exec(\PDO $pdo, string $query, array $values):\PDOStatement
     {
-        $stmt = $connection->prepare($query);
-        $stmt->execute(self::prepareObjects($values));
+        $stmt = $pdo->prepare($query);
+        self::prepareObjects($values);
+        $stmt->execute($values);
         return $stmt;
     }
 
     public static function executeFile(\PDO $connection, string $sqlFileName):int
     {
         return $connection->exec(file_get_contents($sqlFileName));
-    }
-
-    public static function insertMultiple(\PDO $connection, string $table, array $data):bool
-    {
-        $queries = self::toInsertQueries($table, $data);
-
-        $connection->beginTransaction();
-        foreach ($queries as $query) {
-            $connection->exec($query);
-        }
-        return $connection->commit();
-    }
-
-    /**
-     * @param string $table
-     * @param array $data
-     * @param int $chunkSize
-     * @param bool $ignoreDuplicate
-     * @return array|\string[]
-     */
-    public static function toInsertQueries(string $table, array $data, $chunkSize = 1000, $ignoreDuplicate = true):array
-    {
-        $keys = array_keys(reset($data));
-
-        $chunks = array_chunk($data, $chunkSize);
-        $queries = [];
-        foreach ($chunks as $chunk) {
-            $values = [];
-            foreach ($chunk as $row) {
-                $keySortedData = [];
-                foreach ($keys as $key) {
-                    $content = $row[$key];
-                    if (is_null($content)) $content = "NULL";
-                    else if (!is_int($content)) $content = "'" . $content . "'";
-                    $keySortedData[] = $content;
-                }
-                $values[] = "(" . implode(",", $keySortedData) . ")";
-            }
-            $query = "INSERT " . ($ignoreDuplicate ? "IGNORE " : "") . "INTO `$table`(`" . implode("`,`", $keys) . "`) VALUES " . implode(",", $values);
-            $queries[] = $query;
-        }
-        return $queries;
     }
 
     public static function importDump(\PDO $connection, string $sqlFile):bool

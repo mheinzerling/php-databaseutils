@@ -53,7 +53,7 @@ X - [0] - [X] SQL: [11] SELECT boom
 Params:  0
 X - 8
 ";
-        LoggingPDOTest::assertIgnoreTimeDatabaseLinebreak($expected, $pdo->getLog());
+        static::assertEquals(str_replace("\r", "", $expected), $pdo->getAssertableLog());
 
     }
 
