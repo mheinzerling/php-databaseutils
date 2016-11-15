@@ -12,7 +12,7 @@ class TestDatabaseConnection extends LoggingPDO
     /**
      * @var string
      */
-    private $dbName;
+    private $databaseName;
 
     public function __construct(bool $dropDatabaseAtShutdown = true)
     {
@@ -23,9 +23,9 @@ class TestDatabaseConnection extends LoggingPDO
         );
         $this->query("SET NAMES 'utf8'");
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $this->dbName = "test_" . microtime(true);
-        if (!$this->query("CREATE DATABASE `" . $this->dbName . "`")) throw new DatabaseException('Could not create database >' . $this->dbName . '<');
-        if (!$this->query("USE `" . $this->dbName . "`")) throw new DatabaseException('Could not use database >' . $this->dbName . '<');
+        $this->databaseName = "test_" . microtime(true);
+        if (!$this->query("CREATE DATABASE `" . $this->databaseName . "`")) throw new DatabaseException('Could not create database >' . $this->databaseName . '<');
+        if (!$this->query("USE `" . $this->databaseName . "`")) throw new DatabaseException('Could not use database >' . $this->databaseName . '<');
         if ($dropDatabaseAtShutdown) register_shutdown_function([$this, "deleteDatabase"]);
     }
 
@@ -41,7 +41,7 @@ class TestDatabaseConnection extends LoggingPDO
      */
     public function deleteDatabase()
     {
-        $this->exec("DROP DATABASE IF EXISTS `" . $this->dbName . "`");
+        $this->exec("DROP DATABASE IF EXISTS `" . $this->databaseName . "`");
     }
 
     public function tableStructure(string $tableName, $fetchType = \PDO::FETCH_NUM):array
@@ -57,5 +57,14 @@ class TestDatabaseConnection extends LoggingPDO
         $withoutWindowsLinebreak = str_replace("\r", "", $fixStartingZeroTime);
         return $withoutWindowsLinebreak;
     }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseName(): string
+    {
+        return $this->databaseName;
+    }
+
 
 }

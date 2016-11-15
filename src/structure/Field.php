@@ -2,28 +2,26 @@
 namespace mheinzerling\commons\database\structure;
 
 
+use mheinzerling\commons\database\structure\type\Type;
+
 class Field
 {
+    /**
+     * @var Table
+     */
+    private $table;
     /**
      * @var string
      */
     private $name;
     /**
-     * @var string
+     * @var Type
      */
     private $type;
     /**
      * @var bool
      */
     private $null;
-    /**
-     * @var bool
-     */
-    private $primary;
-    /**
-     * @var bool
-     */
-    private $unique;
     /**
      * @var string
      */
@@ -33,15 +31,46 @@ class Field
      */
     private $autoincrement;
 
-    function __construct(string $name, string $type, bool $null, bool $primary, bool $unique, string $default = null, bool $autoincrement)
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
+
+    public function init(Type $type, bool $null, string $default = null, bool $autoincrement)
     {
         $this->autoincrement = $autoincrement;
         $this->default = $default;
-        $this->name = $name;
         $this->null = $null;
-        $this->primary = $primary;
-        $this->unique = $unique;
         $this->type = $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param Table $table
+     */
+    public function setTable(Table $table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * @return Table
+     */
+    public function getTable(): Table
+    {
+        return $this->table;
+    }
+
+    public function getFullName()
+    {
+        return $this->table->getName() . "." . $this->name;
     }
 
     public function buildDropQuery(string $tableName):string
@@ -89,4 +118,6 @@ class Field
         }
         return $results;
     }
+
+
 }

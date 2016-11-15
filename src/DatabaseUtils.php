@@ -76,7 +76,7 @@ class DatabaseUtils
     public static function importDump(\PDO $pdo, string $sqlFile):bool
     {
         $content = file_get_contents($sqlFile);
-        $queries = explode(";\n", $content);
+        $queries = explode(";\n", str_replace("\r", "", $content));
         $pdo->beginTransaction();
         foreach ($queries as $query) {
             $query = trim($query);

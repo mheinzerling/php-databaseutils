@@ -4,14 +4,29 @@ namespace mheinzerling\commons\database\structure;
 
 
 use mheinzerling\commons\ArrayUtils;
-use mheinzerling\commons\StringUtils;
 
-class Schema //TODO rename database
+
+class Database
 {
+    /**
+     * @var string@null
+     */
+    private $name;
     /**
      * @var Table[]
      */
-    private $tables;
+    private $tables = [];
+
+    public function __construct($name = null)
+    {
+        $this->name = $name;
+    }
+
+    public function addTable(Table $table)
+    {
+        $this->tables[$table->getName()] = $table;
+        $table->setDatabase($this);
+    }
 
     /**
      * @return Table[]
@@ -21,38 +36,23 @@ class Schema //TODO rename database
         return $this->tables;
     }
 
-    public static function fromDatabase(\PDO $connection) :Schema
+    public function getName():string
     {
-        $schema = new Schema();
-        $schema->tables = [];
+        return $this->name;
 
-        $stmt = $connection->query("SHOW TABLES");
-        while ($table = $stmt->fetch(\PDO::FETCH_COLUMN)) {
-            $schema->tables[$table] = Table::fromDatabase($connection, $table);
-        }
-        return $schema;
     }
 
-    public static function fromSql(string $sql):Schema
+    public function resolveLazyIndexes()
     {
-        $schema = new Schema();
-        $schema->tables = [];
-        $queries = StringUtils::trimExplode(';', $sql);
-        foreach ($queries as $query) {
-            if (StringUtils::startsWith($query, "CREATE")) {
-                $table = Table::parseSqlCreate($query);
-                $schema->tables[$table->getName()] = $table;
-            }
-            //TODO Indeces etc.
-        }
-        return $schema;
+        foreach ($this->tables as $table) $table->resolveLazyIndexes();
     }
+
 
     /**
-     * @param Schema $otherSchema
+     * @param Database $otherSchema
      * @return string[] operations to get from other to current schema
      */
-    public function compare(Schema $otherSchema):array
+    public function compare(Database $otherSchema):array
     {
         $myTables = $this->getTables();
         $otherTables = $otherSchema->getTables();
@@ -75,4 +75,6 @@ class Schema //TODO rename database
         }
         return $results;
     }
+
+
 }
