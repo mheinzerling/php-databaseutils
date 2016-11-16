@@ -9,7 +9,7 @@ class Primary extends Index
 {
     const PRIMARY = 'PRIMARY';
 
-    public function __construct(array $fields)
+    public function __construct(array $fields = null)
     {
         parent::__construct($fields, Primary::PRIMARY);
     }

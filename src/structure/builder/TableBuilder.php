@@ -8,10 +8,12 @@ use mheinzerling\commons\database\structure\Field;
 use mheinzerling\commons\database\structure\index\Index;
 use mheinzerling\commons\database\structure\index\LazyForeignKey;
 use mheinzerling\commons\database\structure\index\LazyIndex;
+use mheinzerling\commons\database\structure\index\LazyPrimary;
 use mheinzerling\commons\database\structure\index\LazyUnique;
 use mheinzerling\commons\database\structure\index\Primary;
 use mheinzerling\commons\database\structure\index\ReferenceOption;
 use mheinzerling\commons\database\structure\Table;
+use mheinzerling\commons\StringUtils;
 
 class TableBuilder
 {
@@ -52,6 +54,7 @@ class TableBuilder
         $this->db->addTable($this->table);
     }
 
+
     public function build():Database
     {
         return $this->complete()->build();
@@ -62,13 +65,13 @@ class TableBuilder
         return $this->complete()->table($name);
     }
 
-    public function engine(string $engine):TableBuilder
+    public function engine(string $engine = null):TableBuilder
     {
         $this->engine = $engine;
         return $this;
     }
 
-    public function charset(string $charset):TableBuilder
+    public function charset(string $charset = null):TableBuilder
     {
         $this->charset = $charset;
         return $this;
@@ -98,8 +101,10 @@ class TableBuilder
                 $index = $index->toUnique($this->table->getFields());
             } else if ($index instanceof LazyIndex) {
                 $index = $index->toIndex($this->table->getFields());
+            } else if ($index instanceof LazyPrimary) {
+                $index = $index->toPrimary($this->table->getFields());
             }
-            //TODO cleanup/foreign
+
             $this->table->addIndex($index);
         }
 
@@ -151,16 +156,36 @@ class TableBuilder
         return $this->addIndex(new LazyForeignKey($this->table->getName(), $fields, $name, $referenceTable, $referenceFields, $onUpdate, $onDelete));
     }
 
+
+    /**
+     * @param string[] $fields
+     * @return TableBuilder
+     */
+    public function primary(array $fields):TableBuilder
+    {
+        return $this->addIndex(new LazyPrimary($fields));
+    }
+
     public function appendPrimary($field)
     {
-        if (isset($this->indexes[Primary::PRIMARY])) $this->indexes[Primary::PRIMARY]->append($field);
-        $this->indexes[Primary::PRIMARY] = new Primary([$field]);
+        if (isset($this->indexes[Primary::PRIMARY])) {
+            /**
+             * @var $primary Primary
+             */
+            $primary = $this->indexes[Primary::PRIMARY];
+            if ($primary instanceof LazyPrimary) throw new \Exception("Unsupported");
+            $primary->append($field);
+        } else $this->indexes[Primary::PRIMARY] = new Primary([$field]);
     }
 
     public function addIndex(Index $index)
     {
         if (isset($this->indexes[$index->getName()]) && $index instanceof LazyForeignKey) {
-            $this->indexes[$index->getName()]->append($index);
+            /**
+             * @var $lazyFk LazyForeignKey
+             */
+            $lazyFk = $this->indexes[$index->getName()];
+            $lazyFk->append($index);
         } else {
             $this->indexes[$index->getName()] = $index;
         }
@@ -192,6 +217,7 @@ class TableBuilder
 
         $stmt = $pdo->query('SHOW INDEXES FROM `' . $tableName . '` WHERE `Key_name` NOT IN ("' . implode('","', $ignore) . '")');
         $indexes = [];
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($indexRow = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $name = $indexRow['Key_name'];
             if (!isset($indexes[$name])) $indexes[$name] = ['unique' => $indexRow['Non_unique'] == 0, 'fieldNames' => []];
@@ -204,6 +230,7 @@ class TableBuilder
         }
 
         $stmt = $pdo->query("SHOW FULL COLUMNS FROM `" . $tableName . "`");
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($fieldRow = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             FieldBuilder::fromDatabase($tb, $fieldRow, $fks, $booleanFields);
         }
@@ -211,33 +238,26 @@ class TableBuilder
         $tb->complete();
     }
 
-    public static function parseSqlCreate(string $sql): Table
+    /**
+     * @param DatabaseBuilder $db
+     * @param string $sql
+     * @return void
+     * @throws \Exception
+     */
+    public static function fromSqlCreate(DatabaseBuilder $db, string $sql)
     {
-        //CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL)
-
-        $fields = [];
         list($tableName, $remaining) = explode('(', $sql, 2);
         $tableName = trim(str_replace(["CREATE TABLE", "IF NOT EXISTS", "`"], "", $tableName));
+        $tb = $db->table($tableName);
 
+        list($allFields, $remaining) = self::splitFieldsAndConfiguration($remaining);
 
-        $b = 0;
-        for ($c = 0, $s = strlen($remaining); $c < $s; $c++) {
-            if ($remaining[$c] == '(') $b++;
-            if ($remaining[$c] == ')') {
-                $b--;
-                if ($b < 0) break;
-            }
-        }
-        $allFields = substr($remaining, 0, $c);
-        $remaining = trim(substr($remaining, $c), ")");
-
-        $engine = StringUtils::findAndRemove($remaining, "@ENGINE\s*=\s*(\w+)@");
-        $charset = StringUtils::findAndRemove($remaining, "@DEFAULT CHARSET\s*=\s*(\w+)@");
-        $currentAutoincrement = StringUtils::findAndRemove($remaining, "@AUTO_INCREMENT\s*=\s*(\d+)@");
+        $tb->engine(StringUtils::findAndRemove($remaining, "@ENGINE\s*=\s*(\w+)@i"))
+            ->charset(StringUtils::findAndRemove($remaining, "@DEFAULT CHARSET\s*=\s*(\w+)@i"))
+            ->autoincrement(StringUtils::findAndRemove($remaining, "@AUTO_INCREMENT\s*=\s*(\d+)@i"));
 
         $remaining = trim($remaining);
-
-        if (!empty($remaining)) throw new \Exception("TODO: rem >" . $remaining . "<");
+        if (!empty($remaining)) throw new \Exception("TODO: unhandled SQL CREATE TABLE statement configuration parts >" . $remaining . "<");
 
         $carry = "";
         foreach (StringUtils::trimExplode(",", $allFields) as $field) {
@@ -247,37 +267,30 @@ class TableBuilder
                 $carry = $field;
                 continue;
             }
-
             $field = preg_replace('/\s\s+/', ' ', $field);
-            $parts = explode(" ", $field, 3);
-
-            if ($parts[0] == 'PRIMARY') {
-                //TODO
-            } else if ($parts[0] == 'KEY') {
-                //TODO
-            } else if ($parts[0] == 'UNIQUE') {
-                //TODO
-            } else {
-                $fieldName = $parts[0];
-                $type = $parts[1];
-                $other = isset($parts[2]) ? $parts[2] : "";
-                $fieldName = trim($fieldName, '`');
-                $type = strtolower($type);
-                if ($type == "int") $type .= "(11)";
-                $fields[$fieldName] =
-                    new Field($fieldName, $type,
-                        !StringUtils::contains($other, 'NOT NULL'),
-                        StringUtils::contains($other, 'PRIMARY KEY'),
-                        StringUtils::contains($other, 'UNIQUE'),
-                        StringUtils::findAndRemove($other, "@DEFAULT '?(\w+)'?@"),
-                        StringUtils::contains($other, 'AUTO_INCREMENT')
-                    );
-                $other = trim(str_replace(['NOT NULL', 'NULL', 'PRIMARY KEY', 'UNIQUE', 'AUTO_INCREMENT'], "", $other));
-                if (!empty($other)) throw new \Exception("TODO: other >" . $other . "<");
-            }
-
+            FieldBuilder::fromSql($tb, $field);
             $carry = "";
         }
-        return new Table($tableName, $fields, $engine, $charset, $currentAutoincrement);
+        $tb->complete();
     }
+
+    /**
+     * @param $remaining
+     * @return string[]
+     */
+    protected static function splitFieldsAndConfiguration(string $remaining):array
+    {
+        $openBrackets = 0;
+        for ($pos = 0, $s = strlen($remaining); $pos < $s; $pos++) {
+            if ($remaining[$pos] == '(') $openBrackets++;
+            if ($remaining[$pos] == ')') {
+                $openBrackets--;
+                if ($openBrackets < 0) break;
+            }
+        }
+        $allFields = substr($remaining, 0, $pos);
+        $remaining = trim(substr($remaining, $pos), ")");
+        return [$allFields, $remaining];
+    }
+
 }

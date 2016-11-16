@@ -133,6 +133,7 @@ class LoggingPDOStatement extends \PDOStatement
 
     public function setFetchMode($mode, $param = null):bool
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         return $this->statement->setFetchMode($mode, $param);
     }
 }

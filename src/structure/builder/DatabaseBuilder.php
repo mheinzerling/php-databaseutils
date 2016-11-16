@@ -6,6 +6,7 @@ namespace mheinzerling\commons\database\structure\builder;
 use mheinzerling\commons\database\DatabaseUtils;
 use mheinzerling\commons\database\structure\Database;
 use mheinzerling\commons\database\structure\Table;
+use mheinzerling\commons\StringUtils;
 
 class DatabaseBuilder
 {
@@ -110,24 +111,24 @@ class DatabaseBuilder
         $dbName = $pdo->query("SELECT DATABASE();")->fetchColumn();
         $db = new DatabaseBuilder($dbName);
         $tables = DatabaseUtils::exec($pdo, 'SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA=?', [$dbName]);
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($table = $tables->fetch(\PDO::FETCH_ASSOC)) {
             TableBuilder::fromDatabase($pdo, $db, $table['TABLE_NAME'], $table['ENGINE'], $table['TABLE_COLLATION'], $table['AUTO_INCREMENT'], $booleanFields);
         }
         return $db->build();
     }
 
-    public static function fromSqlCreateStatements(string $sql):Database
+    public static function fromSql(string $sql):Database
     {
-        $database = new Database([]);
-        $queries = StringUtils::trimExplode(';', $sql);
-        foreach ($queries as $query) {
-            if (StringUtils::startsWith($query, "CREATE")) {
-                $table = Table::parseSqlCreate($query);
-                $database->getTables()[$table->getName()] = $table;
+        $db = new DatabaseBuilder(""); //TODO parse create database / use
+        $queries = StringUtils::trimExplode(';', $sql); // TODO more stable
+        foreach ($queries as $createStatement) {
+            if (StringUtils::startsWith($createStatement, "CREATE TABLE")) {
+                TableBuilder::fromSqlCreate($db, $createStatement);
             }
-            //TODO Indexes etc.
+            //TODO ALTER statements
         }
-        return $database;
+        return $db->build();
     }
 
 

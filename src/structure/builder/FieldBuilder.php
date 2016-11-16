@@ -5,13 +5,12 @@ namespace mheinzerling\commons\database\structure\builder;
 
 use mheinzerling\commons\database\structure\Database;
 use mheinzerling\commons\database\structure\Field;
-
 use mheinzerling\commons\database\structure\index\Index;
 use mheinzerling\commons\database\structure\index\LazyForeignKey;
 use mheinzerling\commons\database\structure\index\ReferenceOption;
 use mheinzerling\commons\database\structure\index\Unique;
-
 use mheinzerling\commons\database\structure\type\Type;
+use mheinzerling\commons\StringUtils;
 
 class FieldBuilder
 {
@@ -164,7 +163,35 @@ class FieldBuilder
 
     private function typeFromSql($sqlTypeString, $collation, array $booleanFields = [])
     {
-        return $this->type(Type::parse($sqlTypeString, $collation, in_array($this->field->getFullName(), $booleanFields)));
+        return $this->type(Type::fromSql($sqlTypeString, $collation, in_array($this->field->getFullName(), $booleanFields)));
     }
+
+    public static function fromSql(TableBuilder $tb, string $field)
+    {
+        if (
+            StringUtils::startsWith($field, "PRIMARY") ||
+            StringUtils::startsWith($field, "UNIQUE") ||
+            StringUtils::startsWith($field, "KEY") ||
+            StringUtils::startsWith($field, "FOREIGN") ||
+            StringUtils::startsWith($field, "CONSTRAINT")
+        ) {
+            Index::fromSql($tb, $field);
+            return;
+        }
+
+        $name = explode(" ", $field, 2)[0];
+        $remaining = str_replace($name, "", $field);
+        $fb = $tb->field(trim($name, '`'))
+            ->primary(StringUtils::findAndRemove($remaining, '@(PRIMARY KEY)@i') != null)
+            ->null(StringUtils::findAndRemove($remaining, '@(NOT NULL)@i') == null)
+            ->autoincrement(StringUtils::findAndRemove($remaining, '@(AUTO_INCREMENT)@i') != null);
+        $default = StringUtils::findAndRemove($remaining, "@DEFAULT '([^']*)'@i");
+        if ($default == null) $default = StringUtils::findAndRemove($remaining, "@DEFAULT (\d+)@i"); //TODO double etc
+        $fb->default($default);
+        $remaining = trim(str_replace(["DEFAULT", "NULL"], "", $remaining));
+        $fb->type(Type::fromSql($remaining)); //$remaining should be only the type,everything else will fail
+        $fb->complete();
+    }
+
 
 }

@@ -9,7 +9,6 @@ use mheinzerling\commons\database\structure\index\LazyForeignKey;
 use mheinzerling\commons\database\structure\index\LazyIndex;
 use mheinzerling\commons\database\structure\index\LazyUnique;
 use mheinzerling\commons\StringUtils;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 
 class Table
@@ -88,7 +87,7 @@ class Table
         foreach ($this->indexes as &$index) {
             if (StringUtils::contains(get_class($index), "lazy")) {
                 if ($index instanceof LazyIndex || $index instanceof LazyUnique) {
-                    throw new \Exception("Found lazy index/unqiue that should have been resolved already");
+                    throw new \Exception("Found lazy index/unique that should have been resolved already");
                 } else if ($index instanceof LazyForeignKey) {
                     $index = $index->toForeignKey($this->database);
                 } else {
@@ -138,14 +137,14 @@ class Table
         $results = [];
         foreach ($fields as $field) {
             if (!$this->hasField($field)) {
-                $results[] = $other->getField($field)->buildDropQuery($this->name);
+                $results[] = $other->getFields()[$field]->buildDropQuery($this->name);
                 continue;
             }
             if (!$other->hasField($field)) {
-                $results[] = $this->getField($field)->buildAddQuery($this->name);
+                $results[] = $this->getFields()[$field]->buildAddQuery($this->name);
                 continue;
             }
-            $results = array_merge($results, $this->getField($field)->compare($other->getField($field), $this->name));
+            $results = array_merge($results, $this->getFields()[$field]->compare($other->getFields()[$field], $this->name));
 
         }
         return $results;

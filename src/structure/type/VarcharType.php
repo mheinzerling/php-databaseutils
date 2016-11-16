@@ -9,11 +9,11 @@ class VarcharType extends Type
      */
     private $length;
     /**
-     * @var string
+     * @var string|null
      */
     private $collation;
 
-    public function __construct(int $length, string $collation)
+    public function __construct(int $length, string $collation = null)
     {
         $this->length = $length;
         $this->collation = $collation;

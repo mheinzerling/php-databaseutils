@@ -2,8 +2,6 @@
 
 namespace mheinzerling\commons\database\structure\type;
 
-
-use mheinzerling\commons\database\structure\Gender;
 use mheinzerling\commons\StringUtils;
 
 
@@ -29,8 +27,8 @@ class EnumType extends Type
     public static function parseEnum(string $type)
     {
         if (!StringUtils::startsWith(strtolower($type), "enum")) return null;
-        $values = explode("','", substr($type, 6, -2)); //todo
-        return new EnumType($values);
+        preg_match_all("@'([^']*)'@", $type, $matches);
+        return new EnumType($matches[1]);
 
     }
 

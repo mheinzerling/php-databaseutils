@@ -17,7 +17,7 @@ abstract class Type
         return new BoolType();
     }
 
-    public static function varchar(int $length, string $collation):VarcharType
+    public static function varchar(int $length, string $collation = null):VarcharType
     {
         return new VarcharType($length, $collation);
     }
@@ -43,8 +43,11 @@ abstract class Type
      * @return Type|null
      * @throws \Exception
      */
-    public static function parse(string $type, string $collation = null, bool $isBoolean = false)
+    public static function fromSql(string $type, string $collation = null, bool $isBoolean = false)
     {
+        //TODO register parser
+        $result = BoolType::parseBool($type);
+        if ($result != null) return $result;
         $result = ($isBoolean) ? BoolType::parseBool($type) : TinyIntType::parseTinyInt($type);
         if ($result != null) return $result;
         $result = IntType::parseInt($type);

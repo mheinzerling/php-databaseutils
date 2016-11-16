@@ -16,7 +16,8 @@ class BoolType extends TinyIntType
      */
     public static function parseBool(string $type)
     {
-        if (preg_match("@^tinyint\((\d+)\)$@i", $type, $match)) return new BoolType($match[1]);
+        if (preg_match("@^tinyint\((\d+)\)$@i", $type, $match)) return new BoolType();
+        if (preg_match("@^bool$@i", $type, $match)) return new BoolType();
         return null;
     }
 

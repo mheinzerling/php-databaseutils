@@ -20,6 +20,7 @@ class IntType extends Type
     public static function parseInt(string $type)
     {
         if (preg_match("@^int\((\d+)\)$@i", $type, $match)) return new IntType($match[1]);
+        if (preg_match("@^int$@i", $type, $match)) return new IntType(null);
         return null;
     }
 
