@@ -32,4 +32,9 @@ class EnumType extends Type
 
     }
 
+    public function toSql():string
+    {
+        return "ENUM('" . implode("', '", $this->values) . "')";
+    }
+
 }

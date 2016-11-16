@@ -83,8 +83,8 @@ class FieldBuilder
     {
         $this->field->init($this->type, $this->null, $this->default, $this->autoincrement);
         if ($this->primary) $this->tb->appendPrimary($this->field);
-        if ($this->unique) $this->tb->addIndex(new Unique([$this->field]));
-        if ($this->index) $this->tb->addIndex(new Index([$this->field]));
+        if ($this->unique) $this->tb->addIndex(new Unique([$this->field->getName() => $this->field]));
+        if ($this->index) $this->tb->addIndex(new Index([$this->field->getName() => $this->field]));
         if ($this->foreign != null) $this->tb->addIndex(new LazyForeignKey($this->field->getTable()->getName(), [$this->field->getName()], $this->foreign[0], $this->foreign[1], [$this->foreign[2]], $this->foreign[3], $this->foreign[4]));
         return $this->tb;
     }

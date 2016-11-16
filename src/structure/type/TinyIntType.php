@@ -18,4 +18,9 @@ class TinyIntType extends IntType
         if (preg_match("@^tinyint\((\d+)\)$@i", $type, $match)) return new TinyIntType($match[1]);
         return null;
     }
+
+    public function toSql():string
+    {
+        return "TINY" . parent::toSql();
+    }
 }

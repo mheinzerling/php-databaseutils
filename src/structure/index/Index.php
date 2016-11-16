@@ -5,6 +5,7 @@ namespace mheinzerling\commons\database\structure\index;
 
 use mheinzerling\commons\database\structure\builder\TableBuilder;
 use mheinzerling\commons\database\structure\Field;
+use mheinzerling\commons\database\structure\SqlSetting;
 use mheinzerling\commons\StringUtils;
 
 class Index
@@ -72,7 +73,7 @@ class Index
 
     protected function getGeneratedName()
     {
-        return "idx_" . $this->fields[0]->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
+        return "idx_" . reset($this->fields)->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
 
     protected function getImplodedFieldNames(array $fields):string
@@ -83,5 +84,13 @@ class Index
              */
             return $field->getName();
         });
+    }
+
+    public function toSql(SqlSetting $setting):string
+    {
+        $sql = "KEY ";
+        if ($this->name != null) $sql .= "`" . $this->name . "` ";
+        $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`)";
+        return $sql;
     }
 }

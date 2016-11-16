@@ -21,4 +21,11 @@ class BoolType extends TinyIntType
         return null;
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    public function toSql():string
+    {
+        return "BOOL";
+    }
+
+
 }

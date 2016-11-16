@@ -24,4 +24,9 @@ class IntType extends Type
         return null;
     }
 
+    public function toSql():string
+    {
+        return "INT" . ($this->zerofillLength != null ? "(" . $this->zerofillLength . ")" : "");
+    }
+
 }

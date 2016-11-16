@@ -73,14 +73,25 @@ class Field
         return $this->table->getName() . "." . $this->name;
     }
 
-    public function buildDropQuery(string $tableName):string
+    public function toSql(SqlSetting $setting):string
     {
-        return 'ALTER TABLE `' . $tableName . '` DROP COLUMN `' . $this->name . '`;';
+        $sql = '`' . $this->name . '` ';
+        $sql .= $this->type->toSql() . ' ';
+        if (!$this->null) $sql .= "NOT NULL ";
+        if ($this->autoincrement) $sql .= "AUTO_INCREMENT ";
+        if ($this->default != null) $sql .= "DEFAULT '" . $this->default . "' "; //todo check int/double/time etc
+        else if ($this->default == null && $this->null) $sql .= "DEFAULT NULL ";
+        return trim($sql);
     }
 
-    public function buildAddQuery(string $tableName):string
+    public function toCreateSql(SqlSetting $setting):string
     {
-        return 'ALTER TABLE `' . $tableName . '` ADD `' . $this->name . '` ...;'; //TODO
+        return 'ALTER TABLE `' . $this->table->getName() . '` ADD ' . $this->toSql($setting) . ";";
+    }
+
+    public function toDropSql(SqlSetting $setting):string
+    {
+        return 'ALTER TABLE `' . $this->table->getName() . '` DROP COLUMN `' . $this->name . '`;';
     }
 
 
@@ -94,20 +105,11 @@ class Field
         $results = [];
         $key = '';
 
-        if (!$this->primary && $other->primary) {
-            $key .= 'DROP PRIMARY KEY';
-        } elseif ($this->primary && !$other->primary) {
-            $key .= 'ADD PRIMARY KEY(`' . $this->name . '`)';
-        }
-
-        if ($this->unique != $other->unique) {
-            $results[] = 'Alter column index: ' . $tableName . '.' . $this->name . ' (' . $other->unique . '=>' . $this->unique . ') ';
-        }
 
         $diff = $this->type != $other->type || $this->null != $other->null || $this->default != $other->default || $this->autoincrement != $other->autoincrement;
 
         if ($diff) {
-            $mod = trim('MODIFY `' . $this->name . '` ' . strtoupper($this->type) . ' ' .
+            $mod = trim('MODIFY `' . $this->name . '` ' . strtoupper($this->type->toSql()) . ' ' .
                 ($this->null ? 'NULL' : 'NOT NULL') . ' ' . ($this->autoincrement ? 'AUTO_INCREMENT' : ''));
         } else $mod = '';
 

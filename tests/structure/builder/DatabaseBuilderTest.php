@@ -3,7 +3,6 @@
 namespace mheinzerling\commons\database\structure\builder;
 
 use mheinzerling\commons\database\DatabaseUtils;
-use mheinzerling\commons\database\structure\builder\DatabaseBuilder;
 use mheinzerling\commons\database\structure\index\ReferenceOption;
 use mheinzerling\commons\database\structure\type\Type;
 use mheinzerling\commons\database\TestDatabaseConnection;

@@ -3,6 +3,8 @@
 namespace mheinzerling\commons\database\structure\index;
 
 
+use mheinzerling\commons\database\structure\SqlSetting;
+
 class Unique extends Index
 {
     public function __construct(array $fields, string $name = null)
@@ -13,6 +15,11 @@ class Unique extends Index
     /** @noinspection PhpMissingParentCallCommonInspection */
     protected function getGeneratedName()
     {
-        return "uni_" . $this->fields[0]->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
+        return "uni_" . reset($this->fields)->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
+    }
+
+    public function toSql(SqlSetting $setting):string
+    {
+        return "UNIQUE " . parent::toSql($setting);
     }
 }

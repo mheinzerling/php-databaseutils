@@ -23,7 +23,7 @@ class LazyPrimary extends Primary
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[] = $fields[$fieldName];
+            $result[$fieldName] = $fields[$fieldName];
         }
         return new Primary($result);
 

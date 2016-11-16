@@ -4,6 +4,7 @@ namespace mheinzerling\commons\database\structure;
 
 
 use mheinzerling\commons\ArrayUtils;
+use mheinzerling\commons\database\structure\index\ForeignKey;
 use mheinzerling\commons\database\structure\index\Index;
 use mheinzerling\commons\database\structure\index\LazyForeignKey;
 use mheinzerling\commons\database\structure\index\LazyIndex;
@@ -116,37 +117,84 @@ class Table
         return isset($this->fields[$field]);
     }
 
-    public function buildDropQuery(): string
+    /**
+     * @param Table[] $tables
+     * @return bool
+     */
+    public function hasForeignKeysOnlyOn(array $tables):bool
     {
-        return 'DROP TABLE `' . $this->name . '`;';
+        if (empty($this->indexes)) return true;
+        $names = array_keys($tables);
+        foreach ($this->indexes as $index) {
+            if ($index instanceof ForeignKey) {
+                if (!in_array($index->getReferenceTable()->getName(), $names)) return false;
+            }
+        }
+        return true;
     }
 
-    public function buildCreateQuery():string
+    public function toCreateSql(SqlSetting $setting):string
     {
-        return 'CREATE TABLE `' . $this->name . '` (...);'; //TODO
+        $sql = 'CREATE TABLE ';
+        if ($setting->createTableIfNotExists) $sql .= 'IF NOT EXISTS ';
+        $sql .= '`' . $this->name . "` (\n";
+        foreach ($this->fields as $field) {
+            $sql .= "  " . $field->toSql($setting) . ",\n";
+        }
+        if (empty($this->indexes)) $sql = substr($sql, 0, -2);
+        foreach ($this->indexes as $index) {
+            $sql .= "  " . $index->toSql($setting) . ",\n";
+        }
+        if (!empty($this->indexes)) $sql = substr($sql, 0, -2);
+        $sql .= "\n  )";
+        if ($this->engine != null) $sql .= "\n  ENGINE = " . $this->engine;
+        if ($this->charset != null) $sql .= "\n  DEFAULT CHARSET = " . $this->charset;
+        if ($this->currentAutoincrement != null) $sql .= "\n  AUTO_INCREMENT = " . $this->currentAutoincrement;
+        $sql .= ";";
+        return $sql;
+    }
+
+    public function toDropQuery(SqlSetting $setting): string
+    {
+        $sql = "DROP TABLE ";
+        if ($setting->dropTableIfExists) $sql .= "IF EXISTS ";
+        $sql .= "`" . $this->name . "`;";
+        return $sql;
     }
 
 
     /**
-     * @param $other Table
-     * @return string[]
+     * @param Table $other
+     * @param SqlSetting $setting
+     * @return \string[]
      */
-    public function compare(Table $other)
+    public function compare(Table $other, SqlSetting $setting)
     {
         $fields = ArrayUtils::mergeAndSortArrayKeys($this->getFields(), $other->getFields());
         $results = [];
         foreach ($fields as $field) {
             if (!$this->hasField($field)) {
-                $results[] = $other->getFields()[$field]->buildDropQuery($this->name);
+                $results[] = $other->getFields()[$field]->toDropSql($setting);
                 continue;
             }
             if (!$other->hasField($field)) {
-                $results[] = $this->getFields()[$field]->buildAddQuery($this->name);
+                $results[] = $this->getFields()[$field]->toCreateSql($setting);
                 continue;
             }
             $results = array_merge($results, $this->getFields()[$field]->compare($other->getFields()[$field], $this->name));
-
         }
+
+        /*        if (!$this->primary && $other->primary) {
+                    $key .= 'DROP PRIMARY KEY';
+                } elseif ($this->primary && !$other->primary) {
+                    $key .= 'ADD PRIMARY KEY(`' . $this->name . '`)';
+                }
+
+                if ($this->unique != $other->unique) {
+                    $results[] = 'Alter column index: ' . $tableName . '.' . $this->name . ' (' . $other->unique . '=>' . $this->unique . ') ';
+                }*/
+
+
         return $results;
     }
 

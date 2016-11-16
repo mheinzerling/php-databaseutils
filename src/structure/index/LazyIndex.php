@@ -37,7 +37,7 @@ class LazyIndex extends Index
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[] = $fields[$fieldName];
+            $result[$fieldName] = $fields[$fieldName];
         }
         return new Index($result, $this->name);
 

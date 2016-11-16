@@ -166,7 +166,7 @@ class TableBuilder
         return $this->addIndex(new LazyPrimary($fields));
     }
 
-    public function appendPrimary($field)
+    public function appendPrimary(Field $field)
     {
         if (isset($this->indexes[Primary::PRIMARY])) {
             /**
@@ -175,7 +175,7 @@ class TableBuilder
             $primary = $this->indexes[Primary::PRIMARY];
             if ($primary instanceof LazyPrimary) throw new \Exception("Unsupported");
             $primary->append($field);
-        } else $this->indexes[Primary::PRIMARY] = new Primary([$field]);
+        } else $this->indexes[Primary::PRIMARY] = new Primary([$field->getName() => $field]);
     }
 
     public function addIndex(Index $index)

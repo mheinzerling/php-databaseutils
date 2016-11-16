@@ -37,7 +37,7 @@ class LazyUnique extends Unique
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[] = $fields[$fieldName];
+            $result[$fieldName] = $fields[$fieldName];
         }
         return new Unique($result, $this->name);
 

@@ -7,6 +7,8 @@ use Eloquent\Enumeration\AbstractEnumeration;
 
 abstract class Type
 {
+    public abstract function toSql(): string;
+
     public static function int(int $length = null):IntType
     {
         return new IntType($length);
@@ -60,6 +62,4 @@ abstract class Type
         if ($result != null) return $result;
         throw new \Exception("Unknown sql type: " . $type);
     }
-
-
 }

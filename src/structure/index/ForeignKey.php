@@ -4,6 +4,7 @@ namespace mheinzerling\commons\database\structure\index;
 
 
 use mheinzerling\commons\database\structure\Field;
+use mheinzerling\commons\database\structure\SqlSetting;
 use mheinzerling\commons\database\structure\Table;
 
 class ForeignKey extends Index
@@ -48,4 +49,31 @@ class ForeignKey extends Index
     {
         return "fk_" . $this->fields[0]->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields) . "__" . $this->referenceTable->getName() . "_" . $this->getImplodedFieldNames($this->referenceFields);
     }
+
+    /**
+     * @return Table
+     */
+    public function getReferenceTable(): Table
+    {
+        return $this->referenceTable;
+    }
+
+    /** @noinspection PhpMissingParentCallCommonInspection
+     * @param SqlSetting $setting
+     * @return string
+     */
+    public function toSql(SqlSetting $setting):string
+    {
+        $sql = "";
+        if ($this->name != null) $sql .= "CONSTRAINT `" . $this->name . "` ";
+        $sql .= "FOREIGN KEY ";
+        $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`) ";
+        $sql .= "REFERENCES `" . $this->referenceTable->getName() . "` ";
+        $sql .= "(`" . implode("`, `", array_keys($this->referenceFields)) . "`)";
+        if ($this->onUpdate != null) $sql .= "\n    ON UPDATE " . $this->onUpdate->value();
+        if ($this->onDelete != null) $sql .= "\n    ON DELETE " . $this->onDelete->value();
+        return $sql;
+    }
+
+
 }

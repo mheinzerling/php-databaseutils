@@ -29,4 +29,11 @@ class VarcharType extends Type
         if (preg_match("@^varchar\((\d+)\)$@i", $type, $match)) return new VarcharType($match[1], $collation);
         return null;
     }
+
+    public function toSql():string
+    {
+        $sql = "VARCHAR(" . $this->length . ")";
+        if ($this->collation != null) $sql .= " COLLATE " . $this->collation;
+        return $sql;
+    }
 }

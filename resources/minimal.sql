@@ -2,7 +2,6 @@ CREATE TABLE `credential` (
   `provider` VARCHAR(255),
   `uid`      VARCHAR(255),
   `user`     INT(11)
-
 );
 
 CREATE TABLE `user` (
@@ -10,6 +9,5 @@ CREATE TABLE `user` (
   `nick`     VARCHAR(100),
   `birthday` DATETIME,
   `active`   INT(1),
-  `gender`   ENUM('m', 'f')
-
+  `gender`   ENUM ('M', 'F')
 );

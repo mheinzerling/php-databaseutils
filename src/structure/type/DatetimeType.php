@@ -13,4 +13,9 @@ class DatetimeType extends Type
         if (strtoupper($type) == "DATETIME") return new DatetimeType();
         return null;
     }
+
+    public function toSql():string
+    {
+        return "DATETIME";
+    }
 }
