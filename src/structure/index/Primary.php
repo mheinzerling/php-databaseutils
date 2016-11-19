@@ -30,4 +30,25 @@ class Primary extends Index
         $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`)";
         return $sql;
     }
+
+    /** @noinspection PhpMissingParentCallCommonInspection
+     * @param SqlSetting $setting
+     * @return string
+     */
+    public function toAlterDropSql(SqlSetting $setting):string
+    {
+        return "DROP PRIMARY KEY";
+    }
+
+    /** @noinspection PhpMissingParentCallCommonInspection
+     * @param Index $before
+     * @param SqlSetting $setting
+     * @return null|string
+     */
+    public function modifySql(Index $before, SqlSetting $setting)
+    {
+        if (!$before instanceof Primary) return "TODO: change index type to primary " . $this->getName();
+        if ($this->same($before)) return null;
+        return "TODO: PRIMARY changed to (" . implode(", ", array_keys($this->fields)) . ") from (" . implode(", ", array_keys($before->fields)) . ") ";
+    }
 }

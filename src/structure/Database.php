@@ -90,18 +90,18 @@ class Database
     }
 
     /**
-     * @param Database $otherSchema
+     * @param Database $before
      * @param SqlSetting $setting
      * @param string[] $renames A rename mapping old=>new with table.field values
      * @return array|\string[] operations to get from other to current schema
      */
-    public function compare(Database $otherSchema, SqlSetting $setting, array $renames = null):array
+    public function update(Database $before, SqlSetting $setting, array $renames = null /*TODO*/):array
     {
-        $myTables = $this->getTables();
-        $otherTables = $otherSchema->getTables();
-        $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
         $results = [];
-
+        if ($this->name != $before->name) $results[] = "TODO: rename database to >" . $this->name . "< from >" . $before->name . "<";
+        $myTables = $this->getTables();
+        $otherTables = $before->getTables();
+        $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
         foreach ($tablesNames as $name) {
             if (!isset($myTables[$name])) {
                 $results[$name][] = $otherTables[$name]->toDropQuery($setting);
@@ -113,11 +113,14 @@ class Database
                 continue;
             }
 
-            $r = $myTables[$name]->compare($otherTables[$name], $setting);
+            $r = $myTables[$name]->update($otherTables[$name], $setting);
             if (count($r) > 0) $results[$name] = $r;
         }
         return $results;
     }
 
-
+    public function same(Database $other):bool
+    {
+        return $this->name == $other->name;
+    }
 }

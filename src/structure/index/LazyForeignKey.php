@@ -52,10 +52,9 @@ class LazyForeignKey extends ForeignKey
         return "fk_" . $this->tableName . "_" . implode("_", $this->fieldNames) . "__" . $this->referenceTableName . "_" . implode("_", $this->referenceFields);
     }
 
-
     public function append(LazyForeignKey $other)
     {
-        if ($this->name != $other->name || $this->tableName != $other->tableName || $this->onUpdate != $other->onUpdate || $this->onDelete != $other->onUpdate)
+        if ($this->getName() != $other->getName() || $this->tableName != $other->tableName || $this->onUpdate != $other->onUpdate || $this->onDelete != $other->onUpdate)
             throw new \Exception("Tried to merge unrelated lazy foreign keys");
         $this->fieldNames = array_merge($this->fieldNames, $other->fieldNames);
         $this->referenceFields = array_merge($this->referenceFields, $other->referenceFields);
@@ -74,6 +73,9 @@ class LazyForeignKey extends ForeignKey
             $rfields[$rf] = $referenceTable->getFields()[$rf];
         }
 
-        return new ForeignKey($fields, $this->name, $referenceTable, $rfields, $this->onUpdate, $this->onDelete);
+        $this->setTable($table);
+        $foreignKey = new ForeignKey($fields, $this->getName(), $referenceTable, $rfields, $this->onUpdate, $this->onDelete);
+        $foreignKey->setTable($table);
+        return $foreignKey;
     }
 }

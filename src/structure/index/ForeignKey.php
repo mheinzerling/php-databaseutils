@@ -65,7 +65,7 @@ class ForeignKey extends Index
     public function toSql(SqlSetting $setting):string
     {
         $sql = "";
-        if ($this->name != null) $sql .= "CONSTRAINT `" . $this->name . "` ";
+        if ($this->getName() != null) $sql .= "CONSTRAINT `" . $this->getName() . "` ";
         $sql .= "FOREIGN KEY ";
         $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`) ";
         $sql .= "REFERENCES `" . $this->referenceTable->getName() . "` ";
@@ -74,6 +74,4 @@ class ForeignKey extends Index
         if ($this->onDelete != null) $sql .= "\n    ON DELETE " . $this->onDelete->value();
         return $sql;
     }
-
-
 }

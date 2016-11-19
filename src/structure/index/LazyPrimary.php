@@ -3,7 +3,7 @@
 namespace mheinzerling\commons\database\structure\index;
 
 
-use mheinzerling\commons\database\structure\Field;
+use mheinzerling\commons\database\structure\Table;
 
 class LazyPrimary extends Primary
 {
@@ -16,16 +16,19 @@ class LazyPrimary extends Primary
     }
 
     /**
-     * @param Field[] $fields
+     * @param Table $table
      * @return Primary
      */
-    public function toPrimary(array $fields):Primary
+    public function toPrimary(Table $table):Primary
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[$fieldName] = $fields[$fieldName];
+            $result[$fieldName] = $table->getFields()[$fieldName];
         }
-        return new Primary($result);
+        $this->setTable($table);
+        $primary = new Primary($result);
+        $primary->setTable($table);
+        return $primary;
 
     }
 

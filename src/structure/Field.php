@@ -84,42 +84,33 @@ class Field
         return trim($sql);
     }
 
-    public function toCreateSql(SqlSetting $setting):string
+    public function roAlterAddSql(SqlSetting $setting):string
     {
-        return 'ALTER TABLE `' . $this->table->getName() . '` ADD ' . $this->toSql($setting) . ";";
+        return 'ADD ' . $this->toSql($setting) . ";";
     }
 
-    public function toDropSql(SqlSetting $setting):string
+    public function toAlterDropSql(SqlSetting $setting):string
     {
-        return 'ALTER TABLE `' . $this->table->getName() . '` DROP COLUMN `' . $this->name . '`;';
+        return 'DROP COLUMN `' . $this->name . '`;';
     }
 
 
     /**
-     * @param Field $other
-     * @param string $tableName
-     * @return string[]
+     * @param Field $before
+     * @param SqlSetting $setting
+     * @return null|string the MODIFY SQL part of an ALTER TABLE
      */
-    public function compare(Field $other, string $tableName) : array
+    public function modifySql(Field $before, SqlSetting $setting) /*: ?string*/
     {
-        $results = [];
-        $key = '';
-
-
-        $diff = $this->type != $other->type || $this->null != $other->null || $this->default != $other->default || $this->autoincrement != $other->autoincrement;
-
-        if ($diff) {
-            $mod = trim('MODIFY `' . $this->name . '` ' . strtoupper($this->type->toSql()) . ' ' .
-                ($this->null ? 'NULL' : 'NOT NULL') . ' ' . ($this->autoincrement ? 'AUTO_INCREMENT' : ''));
-        } else $mod = '';
-
-        if ($key != '' && $diff) $key = ', ' . $key;
-
-        if ($key != '' || $diff) {
-            $results[] = 'ALTER TABLE `' . $tableName . '` ' . $mod . '' . $key;
-        }
-        return $results;
+        //TODO rename
+        $diff = $this->type != $before->type || $this->null != $before->null || $this->default != $before->default || $this->autoincrement != $before->autoincrement;
+        if (!$diff) return null;
+        return 'MODIFY ' . $this->toSql($setting);
     }
 
+    public function same(Field $other):bool
+    {
+        return $this->table->same($other->table) && $this->name == $other->name;
+    }
 
 }

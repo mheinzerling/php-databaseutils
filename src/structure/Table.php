@@ -81,6 +81,7 @@ class Table
     public function addIndex(Index $index)
     {
         $this->indexes[$index->getName()] = $index;
+        $index->setTable($this);
     }
 
     public function resolveLazyIndexes()
@@ -164,38 +165,56 @@ class Table
 
 
     /**
-     * @param Table $other
+     * @param Table $before
      * @param SqlSetting $setting
-     * @return \string[]
+     * @return string[]
      */
-    public function compare(Table $other, SqlSetting $setting)
+    public function update(Table $before, SqlSetting $setting)
     {
-        $fields = ArrayUtils::mergeAndSortArrayKeys($this->getFields(), $other->getFields());
         $results = [];
-        foreach ($fields as $field) {
-            if (!$this->hasField($field)) {
-                $results[] = $other->getFields()[$field]->toDropSql($setting);
+
+        //TODO rename
+        if ($this->engine != $before->engine) $results[] = "TODO: change table engine to >" . $this->engine . "< from >" . $before->engine . "<";
+        if ($this->charset != $before->charset) $results[] = "TODO: change table charset to >" . $this->charset . "< from >" . $before->charset . "<";
+        if ($this->collation != $before->collation) $results[] = "TODO: change table collation to >" . $this->collation . "< from >" . $before->collation . "<";
+        if ($this->currentAutoincrement != $before->currentAutoincrement) $results[] = "TODO: change table currentAutoincrement to >" . $this->currentAutoincrement . "< from >" . $before->currentAutoincrement . "<";
+
+        $fieldNames = ArrayUtils::mergeAndSortArrayKeys($this->fields, $before->fields);
+
+        $changes = [];
+        foreach ($fieldNames as $name) {
+            if (!$this->hasField($name)) {
+                $changes[] = $before->fields[$name]->toAlterDropSql($setting);
                 continue;
             }
-            if (!$other->hasField($field)) {
-                $results[] = $this->getFields()[$field]->toCreateSql($setting);
+            if (!$before->hasField($name)) {
+                $changes[] = $this->fields[$name]->roAlterAddSql($setting);
                 continue;
             }
-            $results = array_merge($results, $this->getFields()[$field]->compare($other->getFields()[$field], $this->name));
+            $modify = $this->fields[$name]->modifySql($before->fields[$name], $setting);
+
+            if ($modify != null) $changes[] = $modify;
         }
 
-        /*        if (!$this->primary && $other->primary) {
-                    $key .= 'DROP PRIMARY KEY';
-                } elseif ($this->primary && !$other->primary) {
-                    $key .= 'ADD PRIMARY KEY(`' . $this->name . '`)';
-                }
-
-                if ($this->unique != $other->unique) {
-                    $results[] = 'Alter column index: ' . $tableName . '.' . $this->name . ' (' . $other->unique . '=>' . $this->unique . ') ';
-                }*/
-
-
+        $indexNames = ArrayUtils::mergeAndSortArrayKeys($this->indexes, $before->indexes);
+        foreach ($indexNames as $name) {
+            if (!isset($this->indexes[$name])) {
+                $changes[] = $before->indexes[$name]->toAlterDropSql($setting);
+                continue;
+            }
+            if (!isset($before->indexes[$name])) {
+                $changes[] = $this->indexes[$name]->toAlterAddSql($setting);
+                continue;
+            }
+            $modify = $this->indexes[$name]->modifySql($before->indexes[$name], $setting);
+            if ($modify != null) $changes[] = $modify;
+        }
+        if (count($changes) > 0) $results[] = 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $changes);
         return $results;
     }
 
+    public function same(Table $other)
+    {
+        return $this->database->same($other->database) && $this->name == $other->name;
+    }
 }

@@ -6,10 +6,15 @@ namespace mheinzerling\commons\database\structure\index;
 use mheinzerling\commons\database\structure\builder\TableBuilder;
 use mheinzerling\commons\database\structure\Field;
 use mheinzerling\commons\database\structure\SqlSetting;
+use mheinzerling\commons\database\structure\Table;
 use mheinzerling\commons\StringUtils;
 
 class Index
 {
+    /**
+     * @var Table
+     */
+    private $table;
     /**
      * @var Field[]
      */
@@ -18,13 +23,33 @@ class Index
     /**
      * @var string
      */
-    protected $name;
+    private $name;
 
     public function __construct(array $fields = null, string $name = null)
     {
         $this->fields = $fields;
-        $this->name = $name == null ? $this->getGeneratedName() : $name;
+        $this->name = $name;
     }
+
+
+    /**
+     * @param Table $table
+     */
+    public function setTable(Table $table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFieldNames(): array
+    {
+        return array_map(function (Field $f) {
+            $f->getName();
+        }, $this->fields);
+    }
+
 
     /**
      * @param TableBuilder $tb
@@ -64,12 +89,13 @@ class Index
 
     public function getName():string
     {
+        if ($this->name == null) $this->name = $this->getGeneratedName();
         return $this->name;
     }
 
     protected function getGeneratedName()
     {
-        return "idx_" . reset($this->fields)->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
+        return "idx_" . $this->table->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
 
     protected function getImplodedFieldNames(array $fields):string
@@ -89,4 +115,32 @@ class Index
         $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`)";
         return $sql;
     }
+
+    public function toAlterAddSql(SqlSetting $setting):string
+    {
+        return "ADD " . $this->toSql($setting);
+    }
+
+    public function toAlterDropSql(SqlSetting $setting):string
+    {
+        return "DROP KEY `" . $this->name . "`";
+    }
+
+    /**
+     * @param Index $before
+     * @param SqlSetting $setting
+     * @return string|null
+     */
+    public function modifySql(Index $before, SqlSetting $setting)
+    {
+        if ($this->same($before)) return null;
+        return "TODO: change index " . $this->name;
+    }
+
+    public function same(Index $other):bool
+    {
+        return get_class($this) == get_class($other) && $this->table->same($other->table) && array_keys($this->fields) == array_keys($other->fields);
+    }
+
+
 }

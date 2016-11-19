@@ -3,7 +3,7 @@
 namespace mheinzerling\commons\database\structure\index;
 
 
-use mheinzerling\commons\database\structure\Field;
+use mheinzerling\commons\database\structure\Table;
 
 class LazyIndex extends Index
 {
@@ -30,16 +30,19 @@ class LazyIndex extends Index
     }
 
     /**
-     * @param Field[] $fields
+     * @param Table $table
      * @return Index
      */
-    public function toIndex(array $fields):Index
+    public function toIndex(Table $table):Index
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[$fieldName] = $fields[$fieldName];
+            $result[$fieldName] = $table->getFields()[$fieldName];
         }
-        return new Index($result, $this->name);
+        $this->setTable($table);
+        $index = new Index($result, $this->getName());
+        $index->setTable($table);
+        return $index;
 
     }
 

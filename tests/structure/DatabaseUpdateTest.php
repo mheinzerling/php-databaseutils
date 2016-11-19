@@ -4,13 +4,13 @@ namespace mheinzerling\commons\database\structure;
 
 use mheinzerling\commons\database\structure\builder\DatabaseBuilder;
 
-class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
+class DatabaseUpdateTest extends \PHPUnit_Framework_TestCase
 {
     public function testEquals()
     {
         $sql = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $schema = DatabaseBuilder::fromSql($sql);
-        static::assertEquals([], $schema->compare($schema, new SqlSetting()));
+        static::assertEquals([], $schema->update($schema, new SqlSetting()));
     }
 
     public function testTable()
@@ -20,8 +20,8 @@ class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
         $before = DatabaseBuilder::fromSql($sql);
         $after = DatabaseBuilder::fromSql($sql . $sql2);
         static::assertEquals(['foo' => ["CREATE TABLE IF NOT EXISTS `foo` (\n  `id` INT NOT NULL AUTO_INCREMENT,\n  PRIMARY KEY (`id`)\n  );"]],
-            $after->compare($before, new SqlSetting()));
-        static::assertEquals(['foo' => ["DROP TABLE IF EXISTS `foo`;"]], $before->compare($after, new SqlSetting()));
+            $after->update($before, new SqlSetting()));
+        static::assertEquals(['foo' => ["DROP TABLE IF EXISTS `foo`;"]], $before->update($after, new SqlSetting()));
     }
 
     public function testColumn()
@@ -30,8 +30,8 @@ class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
         $sql2 = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`lastExecution` DATETIME NULL);";
         $before = DatabaseBuilder::fromSql($sql);
         $after = DatabaseBuilder::fromSql($sql2);
-        static::assertEquals(['revision' => ["ALTER TABLE `revision` DROP COLUMN `class`;"]], $after->compare($before, new SqlSetting()));
-        static::assertEquals(['revision' => ["ALTER TABLE `revision` ADD `class` VARCHAR(255) NOT NULL;"]], $before->compare($after, new SqlSetting()));
+        static::assertEquals(['revision' => ["ALTER TABLE `revision` DROP COLUMN `class`;"]], $after->update($before, new SqlSetting()));
+        static::assertEquals(['revision' => ["ALTER TABLE `revision` ADD `class` VARCHAR(255) NOT NULL;"]], $before->update($after, new SqlSetting()));
     }
 
     public function testParams()
@@ -40,9 +40,8 @@ class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
         $sql2 = "CREATE TABLE revision (`id` INT(15) NULL, `class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $before = DatabaseBuilder::fromSql($sql);
         $after = DatabaseBuilder::fromSql($sql2);
-        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT(15) NULL, DROP PRIMARY KEY']], $after->compare($before, new SqlSetting()));
-        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY(`id`)']], $before->compare($after, new SqlSetting()));
-        //TODO indexes
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT(15) DEFAULT NULL, DROP PRIMARY KEY']], $after->update($before, new SqlSetting()));
+        static::assertEquals(['revision' => ['ALTER TABLE `revision` MODIFY `id` INT NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id`)']], $before->update($after, new SqlSetting()));
     }
 
     public function testIndexFile()
@@ -52,15 +51,18 @@ class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
         $after = DatabaseBuilder::fromSql($this->res("full.sql"));
         $expected = [
             'credential' => [
-                "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL",
-                "ALTER TABLE `credential` MODIFY `uid` VARCHAR(255) NOT NULL",
-                "ALTER TABLE `credential` MODIFY `user` INT(11) NULL"
+                "TODO: change table engine to >InnoDB< from ><",
+                "TODO: change table charset to >latin1< from ><",
+                "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL, MODIFY `uid` VARCHAR(255) NOT NULL, ADD PRIMARY KEY (`provider`, `uid`), " .
+                "ADD CONSTRAINT `fk_credential_user__user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`)\n    ON UPDATE CASCADE\n    ON DELETE CASCADE, " .
+                "ADD KEY `idx_credential_provider_uid_user` (`provider`, `uid`, `user`), ADD UNIQUE KEY `uni_credential_provider_user` (`provider`, `user`)"
             ],
             'user' => [
-                "ALTER TABLE `user` MODIFY `active` INT(1) NOT NULL",
-                "ALTER TABLE `user` MODIFY `gender` ENUM('m','f') NULL",
-                "ALTER TABLE `user` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT",
-                "ALTER TABLE `user` MODIFY `nick` VARCHAR(100) NOT NULL"
+                "TODO: change table engine to >InnoDB< from ><",
+                "TODO: change table charset to >utf8< from ><",
+                "TODO: change table currentAutoincrement to >2< from ><",
+                "ALTER TABLE `user` MODIFY `active` BOOL NOT NULL DEFAULT '0', MODIFY `gender` ENUM('m', 'f') DEFAULT NULL, MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, MODIFY `nick` VARCHAR(100) NOT NULL, " .
+                "ADD PRIMARY KEY (`id`), ADD KEY `idx_user_gender` (`gender`), ADD UNIQUE KEY `uni_user_nick` (`nick`)"
             ],
             'payload' => [
                 "CREATE TABLE IF NOT EXISTS `payload` (\n  `payload` INT(11) DEFAULT NULL,\n  `cprovider` VARCHAR(255) NOT NULL,\n  `cuid` VARCHAR(255) NOT NULL," .
@@ -68,7 +70,7 @@ class DatabaseCompareTest extends \PHPUnit_Framework_TestCase
                 "    ON UPDATE NO ACTION\n    ON DELETE NO ACTION\n  )\n  ENGINE = InnoDB\n  DEFAULT CHARSET = latin1;"
             ]
         ];
-        static::assertEquals($expected, $after->compare($before, new SqlSetting()));
+        static::assertEquals($expected, $after->update($before, new SqlSetting()));
         //TODO indexes
     }
 

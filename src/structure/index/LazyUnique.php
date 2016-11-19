@@ -3,7 +3,7 @@
 namespace mheinzerling\commons\database\structure\index;
 
 
-use mheinzerling\commons\database\structure\Field;
+use mheinzerling\commons\database\structure\Table;
 
 class LazyUnique extends Unique
 {
@@ -30,16 +30,19 @@ class LazyUnique extends Unique
     }
 
     /**
-     * @param Field[] $fields
+     * @param Table $table
      * @return Unique
      */
-    public function toUnique(array $fields):Unique
+    public function toUnique(Table $table):Unique
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {
-            $result[$fieldName] = $fields[$fieldName];
+            $result[$fieldName] = $table->getFields()[$fieldName];
         }
-        return new Unique($result, $this->name);
+        $this->setTable($table);
+        $unique = new Unique($result, $this->getName());
+        $unique->setTable($table);
+        return $unique;
 
     }
 

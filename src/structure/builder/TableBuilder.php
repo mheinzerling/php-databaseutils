@@ -98,11 +98,11 @@ class TableBuilder
 
         foreach ($this->indexes as $name => &$index) {
             if ($index instanceof LazyUnique) {
-                $index = $index->toUnique($this->table->getFields());
+                $index = $index->toUnique($this->table);
             } else if ($index instanceof LazyIndex) {
-                $index = $index->toIndex($this->table->getFields());
+                $index = $index->toIndex($this->table);
             } else if ($index instanceof LazyPrimary) {
-                $index = $index->toPrimary($this->table->getFields());
+                $index = $index->toPrimary($this->table);
             }
 
             $this->table->addIndex($index);
@@ -180,6 +180,7 @@ class TableBuilder
 
     public function addIndex(Index $index)
     {
+        $index->setTable($this->table);
         if (isset($this->indexes[$index->getName()]) && $index instanceof LazyForeignKey) {
             /**
              * @var $lazyFk LazyForeignKey
