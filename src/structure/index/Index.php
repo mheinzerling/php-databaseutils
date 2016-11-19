@@ -34,29 +34,25 @@ class Index
     public static function fromSql(TableBuilder $tb, string $constraint)
     {
         //TODO more robust
-        if (StringUtils::contains($constraint, "FOREIGN KEY")) {
+        if (StringUtils::contains($constraint, "FOREIGN KEY", true)) {
             $onUpdate = ReferenceOption::memberByValueWithDefault(StringUtils::findAndRemove($constraint, "@ON UPDATE (RESTRICT|CASCADE|SET NULL|NO ACTION)@i"), null);
             $onDelete = ReferenceOption::memberByValueWithDefault(StringUtils::findAndRemove($constraint, "@ON DELETE (RESTRICT|CASCADE|SET NULL|NO ACTION)@i"), null);
             $parts = explode("FOREIGN KEY", $constraint);
             $name = trim(str_replace("CONSTRAINT ", "", $parts[0]), "`\t\r\n ");
 
             $parts = explode("REFERENCES", $parts[1]);
-            $fieldNames = StringUtils::trimExplode(",", $parts[0]);
-            foreach ($fieldNames as &$fieldName) $fieldName = trim($fieldName, "`()\t\r\n ");
-
+            $fieldNames = StringUtils::trimExplode(",", $parts[0], StringUtils::TRIM_DEFAULT . "`()");
             $parts = explode("(", $parts[1]);
             $referenceTableName = trim($parts[0], "`\t\r\n ");
-            $referenceFieldNames = StringUtils::trimExplode(",", $parts[1]);
-            foreach ($referenceFieldNames as &$referenceFieldName) $referenceFieldName = trim($referenceFieldName, "`()\t\r\n ");
+            $referenceFieldNames = StringUtils::trimExplode(",", $parts[1], StringUtils::TRIM_DEFAULT . "`()");
             $tb->foreign($fieldNames, $referenceTableName, $referenceFieldNames, $onUpdate, $onDelete, $name);
         } else {
             $primary = StringUtils::findAndRemove($constraint, "@(primary key)@i") != null;
             $unique = StringUtils::findAndRemove($constraint, "@(unique key)@i") != null;
             $details = StringUtils::trimExplode("(", $constraint);
             $name = trim($details[0], "`\t\r\n ");
-            if (StringUtils::startsWith(strtoupper($constraint), "KEY ")) $name = trim(substr($name, 4), "`");
-            $values = StringUtils::trimExplode(",", $details[1]);
-            foreach ($values as &$value) $value = trim($value, "`)\t\r\n ");
+            if (StringUtils::startsWith($constraint, "KEY ", true)) $name = trim(substr($name, 4), "`");
+            $values = StringUtils::trimExplode(",", $details[1], StringUtils::TRIM_DEFAULT . "`)");
 
             if ($primary) $tb->primary($values);
             else if ($unique) $tb->unique($values, $name);

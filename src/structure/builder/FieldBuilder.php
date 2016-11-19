@@ -169,11 +169,11 @@ class FieldBuilder
     public static function fromSql(TableBuilder $tb, string $field)
     {
         if (
-            StringUtils::startsWith($field, "PRIMARY") ||
-            StringUtils::startsWith($field, "UNIQUE") ||
-            StringUtils::startsWith($field, "KEY") ||
-            StringUtils::startsWith($field, "FOREIGN") ||
-            StringUtils::startsWith($field, "CONSTRAINT")
+            StringUtils::startsWith($field, "PRIMARY", true) ||
+            StringUtils::startsWith($field, "UNIQUE", true) ||
+            StringUtils::startsWith($field, "KEY", true) ||
+            StringUtils::startsWith($field, "FOREIGN", true) ||
+            StringUtils::startsWith($field, "CONSTRAINT", true)
         ) {
             Index::fromSql($tb, $field);
             return;

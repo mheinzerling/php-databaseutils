@@ -63,7 +63,7 @@ class Database
      * @return Table[]
      * @throws \Exception
      */
-    private function topoOrder($tables):array
+    private function topoOrder(array $tables):array
     {
         $result = [];
         while (count($tables)) {

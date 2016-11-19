@@ -280,14 +280,7 @@ class TableBuilder
      */
     protected static function splitFieldsAndConfiguration(string $remaining):array
     {
-        $openBrackets = 0;
-        for ($pos = 0, $s = strlen($remaining); $pos < $s; $pos++) {
-            if ($remaining[$pos] == '(') $openBrackets++;
-            if ($remaining[$pos] == ')') {
-                $openBrackets--;
-                if ($openBrackets < 0) break;
-            }
-        }
+        $pos = StringUtils::findMatchingBracketPos("(" . $remaining) - 1;
         $allFields = substr($remaining, 0, $pos);
         $remaining = trim(substr($remaining, $pos), ")");
         return [$allFields, $remaining];

@@ -81,8 +81,8 @@ class DatabaseUtils
         foreach ($queries as $query) {
             $query = trim($query);
             try {
-                if (StringUtils::startsWith($query, "/*!50503 select")) continue;
-                if (StringUtils::startsWith($query, "SELECT")) continue;
+                if (StringUtils::startsWith($query, "/*!50503 select", true)) continue;
+                if (StringUtils::startsWith($query, "SELECT", true)) continue;
                 $pdo->exec($query);
             } catch (\PDOException $e) {
                 if ($e->getMessage() == "SQLSTATE[HY000]: General error: trying to execute an empty query") continue;
