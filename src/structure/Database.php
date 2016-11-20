@@ -93,30 +93,29 @@ class Database
      * @param Database $before
      * @param SqlSetting $setting
      * @param string[] $renames A rename mapping old=>new with table.field values
-     * @return array|\string[] operations to get from other to current schema
+     * @return Migration operations to get from other to current schema
      */
-    public function update(Database $before, SqlSetting $setting, array $renames = null /*TODO*/):array
+    public function migrate(Database $before, SqlSetting $setting, array $renames = null /*TODO*/):Migration
     {
-        $results = [];
-        if ($this->name != $before->name) $results[] = "TODO: rename database to >" . $this->name . "< from >" . $before->name . "<";
+        $migration = new Migration();
+        if ($this->name != $before->name) $migration->todo("TODO: rename database to >" . $this->name . "< from >" . $before->name . "<");
         $myTables = $this->getTables();
         $otherTables = $before->getTables();
         $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
         foreach ($tablesNames as $name) {
             if (!isset($myTables[$name])) {
-                $results[$name][] = $otherTables[$name]->toDropQuery($setting);
+                $migration->dropTable($name, $otherTables[$name]->toDropQuery($setting));
                 continue;
             }
 
             if (!isset($otherTables[$name])) {
-                $results[$name][] = $myTables[$name]->toCreateSql($setting);
+                $migration->addTable($name, $myTables[$name]->toCreateSql($setting));
                 continue;
             }
 
-            $r = $myTables[$name]->update($otherTables[$name], $setting);
-            if (count($r) > 0) $results[$name] = $r;
+            $myTables[$name]->migrate($migration, $otherTables[$name], $setting);
         }
-        return $results;
+        return $migration;
     }
 
     public function same(Database $other):bool

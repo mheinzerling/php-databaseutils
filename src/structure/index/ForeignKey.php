@@ -70,8 +70,9 @@ class ForeignKey extends Index
         $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`) ";
         $sql .= "REFERENCES `" . $this->referenceTable->getName() . "` ";
         $sql .= "(`" . implode("`, `", array_keys($this->referenceFields)) . "`)";
-        if ($this->onUpdate != null) $sql .= "\n    ON UPDATE " . $this->onUpdate->value();
-        if ($this->onDelete != null) $sql .= "\n    ON DELETE " . $this->onDelete->value();
+        $delimiter = $setting->singleLine ? " " : "\n    ";
+        if ($this->onUpdate != null) $sql .= $delimiter . "ON UPDATE " . $this->onUpdate->value();
+        if ($this->onDelete != null) $sql .= $delimiter . "ON DELETE " . $this->onDelete->value();
         return $sql;
     }
 }

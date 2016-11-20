@@ -136,21 +136,23 @@ class Table
 
     public function toCreateSql(SqlSetting $setting):string
     {
+        $delimiter = $setting->singleLine ? " " : "\n";
         $sql = 'CREATE TABLE ';
         if ($setting->createTableIfNotExists) $sql .= 'IF NOT EXISTS ';
-        $sql .= '`' . $this->name . "` (\n";
+        $sql .= '`' . $this->name . "` (" . $delimiter;
         foreach ($this->fields as $field) {
-            $sql .= "  " . $field->toSql($setting) . ",\n";
+            $sql .= ($setting->singleLine ? "" : "  ") . $field->toSql($setting) . "," . $delimiter;
         }
         if (empty($this->indexes)) $sql = substr($sql, 0, -2);
         foreach ($this->indexes as $index) {
-            $sql .= "  " . $index->toSql($setting) . ",\n";
+            $sql .= ($setting->singleLine ? "" : "  ") . $index->toSql($setting) . "," . $delimiter;
         }
         if (!empty($this->indexes)) $sql = substr($sql, 0, -2);
-        $sql .= "\n  )";
-        if ($this->engine != null) $sql .= "\n  ENGINE = " . $this->engine;
-        if ($this->charset != null) $sql .= "\n  DEFAULT CHARSET = " . $this->charset;
-        if ($this->currentAutoincrement != null) $sql .= "\n  AUTO_INCREMENT = " . $this->currentAutoincrement;
+        $delimiter = $setting->singleLine ? " " : "\n  ";
+        $sql .= $delimiter . ")";
+        if ($this->engine != null) $sql .= $delimiter . "ENGINE = " . $this->engine;
+        if ($this->charset != null) $sql .= $delimiter . "DEFAULT CHARSET = " . $this->charset;
+        if ($this->currentAutoincrement != null) $sql .= $delimiter . "AUTO_INCREMENT = " . $this->currentAutoincrement;
         $sql .= ";";
         return $sql;
     }
@@ -165,52 +167,66 @@ class Table
 
 
     /**
+     * @param Migration $migration
      * @param Table $before
      * @param SqlSetting $setting
-     * @return string[]
      */
-    public function update(Table $before, SqlSetting $setting)
+    public function migrate(Migration $migration, Table $before, SqlSetting $setting)
     {
-        $results = [];
-
         //TODO rename
-        if ($this->engine != $before->engine) $results[] = "TODO: change table engine to >" . $this->engine . "< from >" . $before->engine . "<";
-        if ($this->charset != $before->charset) $results[] = "TODO: change table charset to >" . $this->charset . "< from >" . $before->charset . "<";
-        if ($this->collation != $before->collation) $results[] = "TODO: change table collation to >" . $this->collation . "< from >" . $before->collation . "<";
-        if ($this->currentAutoincrement != $before->currentAutoincrement) $results[] = "TODO: change table currentAutoincrement to >" . $this->currentAutoincrement . "< from >" . $before->currentAutoincrement . "<";
+        $meta = [];
+        if ($this->engine != $before->engine) $meta[] = "ENGINE=" . $this->engine;
+        if ($this->charset != $before->charset) $meta[] = "CHARACTER SET " . $this->charset;
+        if ($this->collation != $before->collation) $meta[] = "COLLATE " . $this->collation;
+        if ($this->currentAutoincrement != $before->currentAutoincrement) $meta[] = "AUTO_INCREMENT = " . $this->currentAutoincrement;
+        if (count($meta) > 0) {
+            $migration->tableMeta($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $meta));
+        }
 
+        $self = [];
         $fieldNames = ArrayUtils::mergeAndSortArrayKeys($this->fields, $before->fields);
-
-        $changes = [];
         foreach ($fieldNames as $name) {
             if (!$this->hasField($name)) {
-                $changes[] = $before->fields[$name]->toAlterDropSql($setting);
+                $self[] = $before->fields[$name]->toAlterDropSql($setting);
                 continue;
             }
             if (!$before->hasField($name)) {
-                $changes[] = $this->fields[$name]->roAlterAddSql($setting);
+                $self[] = $this->fields[$name]->roAlterAddSql($setting);
                 continue;
             }
             $modify = $this->fields[$name]->modifySql($before->fields[$name], $setting);
 
-            if ($modify != null) $changes[] = $modify;
+            if ($modify != null) $self[] = $modify;
         }
 
+
+        $foreign = [];
         $indexNames = ArrayUtils::mergeAndSortArrayKeys($this->indexes, $before->indexes);
         foreach ($indexNames as $name) {
             if (!isset($this->indexes[$name])) {
-                $changes[] = $before->indexes[$name]->toAlterDropSql($setting);
+                if ($before->indexes[$name] instanceof ForeignKey) $foreign[] = $before->indexes[$name]->toAlterDropSql($setting);
+                else $self[] = $before->indexes[$name]->toAlterDropSql($setting);
                 continue;
             }
             if (!isset($before->indexes[$name])) {
-                $changes[] = $this->indexes[$name]->toAlterAddSql($setting);
+                if ($this->indexes[$name] instanceof ForeignKey) $foreign[] = $this->indexes[$name]->toAlterAddSql($setting);
+                else $self[] = $this->indexes[$name]->toAlterAddSql($setting);
                 continue;
             }
             $modify = $this->indexes[$name]->modifySql($before->indexes[$name], $setting);
-            if ($modify != null) $changes[] = $modify;
+            if ($modify != null) {
+                if ($this->indexes[$name] instanceof ForeignKey) $foreign[] = $modify;
+                else $self[] = $modify;
+            }
         }
-        if (count($changes) > 0) $results[] = 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $changes);
-        return $results;
+
+        if (count($self) > 0) {
+            $migration->tableStructure($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $self));
+        }
+
+        if (count($foreign) > 0) {
+            $migration->tableKeys($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $foreign));
+        }
     }
 
     public function same(Table $other)
