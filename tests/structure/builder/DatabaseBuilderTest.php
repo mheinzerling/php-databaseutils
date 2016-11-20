@@ -22,10 +22,11 @@ class DatabaseBuilderTest extends \PHPUnit_Framework_TestCase
         $sql = "CREATE TABLE revision (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,`class` VARCHAR(255) NOT NULL,`lastExecution` DATETIME NULL);";
         $pdo->exec($sql);
 
-        $expected = (new DatabaseBuilder($pdo->getDatabaseName()))->defaultEngine("MyISAM")->defaultCharset("latin1")->defaultCollation("latin1_swedish_ci")
+        $table = DatabaseUtils::exec($pdo, 'SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA=?', [$pdo->getDatabaseName()])->fetch(\PDO::FETCH_ASSOC);
+        $expected = (new DatabaseBuilder($pdo->getDatabaseName()))->defaultEngine($table['ENGINE'])->defaultCharset(explode("_", $table['TABLE_COLLATION'])[0])->defaultCollation($table['TABLE_COLLATION'])
             ->table("revision")->autoincrement(1)
             ->field("id")->type(Type::int(11))->primary()->autoincrement()
-            ->field("class")->type(Type::varchar(255, "latin1_swedish_ci"))
+            ->field("class")->type(Type::varchar(255, $table['TABLE_COLLATION']))
             ->field("lastExecution")->type(Type::datetime())->null()
             ->build();
         static::assertEquals($expected, DatabaseBuilder::fromDatabase($pdo));
