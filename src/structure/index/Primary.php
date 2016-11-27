@@ -24,7 +24,7 @@ class Primary extends Index
      * @param SqlSetting $setting
      * @return string
      */
-    public function toSql(SqlSetting $setting):string
+    public function toSql(SqlSetting $setting): string
     {
         $sql = "PRIMARY KEY ";
         $sql .= "(`" . implode("`, `", array_keys($this->fields)) . "`)";
@@ -35,7 +35,7 @@ class Primary extends Index
      * @param SqlSetting $setting
      * @return string
      */
-    public function toAlterDropSql(SqlSetting $setting):string
+    public function toAlterDropSql(SqlSetting $setting): string
     {
         return "DROP PRIMARY KEY";
     }
@@ -51,4 +51,10 @@ class Primary extends Index
         if ($this->same($before)) return null;
         return "TODO: PRIMARY changed to (" . implode(", ", array_keys($this->fields)) . ") from (" . implode(", ", array_keys($before->fields)) . ") ";
     }
+
+    public function toBuilderCode(): string
+    {
+        return '->primary(["' . implode('", "', array_keys($this->fields)) . '"])';
+    }
+
 }

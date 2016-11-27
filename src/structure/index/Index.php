@@ -87,7 +87,7 @@ class Index
 
     }
 
-    public function getName():string
+    public function getName(): string
     {
         if ($this->name == null) $this->name = $this->getGeneratedName();
         return $this->name;
@@ -98,7 +98,7 @@ class Index
         return "idx_" . $this->table->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
 
-    protected function getImplodedFieldNames(array $fields):string
+    protected function getImplodedFieldNames(array $fields): string
     {
         return StringUtils::implode("_", $fields, function ($_, $field) {
             /**
@@ -108,7 +108,7 @@ class Index
         });
     }
 
-    public function toSql(SqlSetting $setting):string
+    public function toSql(SqlSetting $setting): string
     {
         $sql = "KEY ";
         if ($this->name != null) $sql .= "`" . $this->name . "` ";
@@ -116,12 +116,12 @@ class Index
         return $sql;
     }
 
-    public function toAlterAddSql(SqlSetting $setting):string
+    public function toAlterAddSql(SqlSetting $setting): string
     {
         return "ADD " . $this->toSql($setting);
     }
 
-    public function toAlterDropSql(SqlSetting $setting):string
+    public function toAlterDropSql(SqlSetting $setting): string
     {
         return "DROP KEY `" . $this->name . "`";
     }
@@ -137,9 +137,14 @@ class Index
         return "TODO: change index " . $this->name;
     }
 
-    public function same(Index $other):bool
+    public function same(Index $other): bool
     {
         return get_class($this) == get_class($other) && $this->table->same($other->table) && array_keys($this->fields) == array_keys($other->fields);
+    }
+
+    public function toBuilderCode(): string
+    {
+        return '->index(["' . implode('", "', array_keys($this->fields)) . '"])';
     }
 
 

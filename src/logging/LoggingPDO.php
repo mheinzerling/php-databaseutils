@@ -67,7 +67,7 @@ class LoggingPDO extends \PDO
         $this->log[] = ['query' => "[" . $type . "] " . $query, 'time' => round($timeInMillies, 6), 'result' => $result];
     }
 
-    public function getLog() :string
+    public function getLog(): string
     {
         $totalTime = 0;
         $result = '';
@@ -87,7 +87,7 @@ class LoggingPDO extends \PDO
         $this->log = [];
     }
 
-    public function numberOfQueries() :int
+    public function numberOfQueries(): int
     {
         return count($this->log);
     }

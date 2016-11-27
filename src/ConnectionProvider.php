@@ -15,7 +15,7 @@ class ConnectionProvider
      * @return \PDO
      * @throws \Exception
      */
-    public static function get() :\PDO
+    public static function get(): \PDO
     {
         if (self::$connection == null) throw new DatabaseException("No default connection defined. Call ConnectionProvider::set");
         return self::$connection;

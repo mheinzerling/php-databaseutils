@@ -30,10 +30,15 @@ class VarcharType extends Type
         return null;
     }
 
-    public function toSql():string
+    public function toSql(): string
     {
         $sql = "VARCHAR(" . $this->length . ")";
         if ($this->collation != null) $sql .= " COLLATE " . $this->collation;
         return $sql;
+    }
+
+    public function toBuilderCode(): string
+    {
+        return '->type(Type::varchar(' . $this->length . ', "' . $this->collation . '"))';
     }
 }

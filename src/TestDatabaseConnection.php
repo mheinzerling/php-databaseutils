@@ -29,7 +29,7 @@ class TestDatabaseConnection extends LoggingPDO
         if ($dropDatabaseAtShutdown) register_shutdown_function([$this, "deleteDatabase"]);
     }
 
-    private static function envWithFallback(string $key, $default):string
+    private static function envWithFallback(string $key, $default): string
     {
         $value = getenv($key);
         if ($value === false) return $default;
@@ -44,7 +44,7 @@ class TestDatabaseConnection extends LoggingPDO
         $this->exec("DROP DATABASE IF EXISTS `" . $this->databaseName . "`");
     }
 
-    public function tableStructure(string $tableName, $fetchType = \PDO::FETCH_NUM):array
+    public function tableStructure(string $tableName, $fetchType = \PDO::FETCH_NUM): array
     {
         return $this->query("DESCRIBE `" . $tableName . "`")->fetchAll($fetchType);
     }

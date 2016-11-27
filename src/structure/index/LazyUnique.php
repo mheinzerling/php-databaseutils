@@ -33,7 +33,7 @@ class LazyUnique extends Unique
      * @param Table $table
      * @return Unique
      */
-    public function toUnique(Table $table):Unique
+    public function toUnique(Table $table): Unique
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {

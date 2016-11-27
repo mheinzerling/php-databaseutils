@@ -19,7 +19,7 @@ class LazyPrimary extends Primary
      * @param Table $table
      * @return Primary
      */
-    public function toPrimary(Table $table):Primary
+    public function toPrimary(Table $table): Primary
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {

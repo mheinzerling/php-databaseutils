@@ -55,41 +55,41 @@ class TableBuilder
     }
 
 
-    public function build():Database
+    public function build(): Database
     {
         return $this->complete()->build();
     }
 
-    public function table(string $name):TableBuilder
+    public function table(string $name): TableBuilder
     {
         return $this->complete()->table($name);
     }
 
-    public function engine(string $engine = null):TableBuilder
+    public function engine(string $engine = null): TableBuilder
     {
         $this->engine = $engine;
         return $this;
     }
 
-    public function charset(string $charset = null):TableBuilder
+    public function charset(string $charset = null): TableBuilder
     {
         $this->charset = $charset;
         return $this;
     }
 
-    public function collation(string $collation):TableBuilder
+    public function collation(string $collation): TableBuilder
     {
         $this->collation = $collation;
         return $this;
     }
 
-    public function autoincrement(int $currentAutoincrement = null):TableBuilder
+    public function autoincrement(int $currentAutoincrement = null): TableBuilder
     {
         $this->currentAutoincrement = $currentAutoincrement;
         return $this;
     }
 
-    public function complete():DatabaseBuilder
+    public function complete(): DatabaseBuilder
     {
         $this->table->init($this->engine != null ? $this->engine : $this->db->getDefaultEngine(),
             $this->charset != null ? $this->charset : $this->db->getDefaultCharset(),
@@ -112,7 +112,7 @@ class TableBuilder
         return $this->db;
     }
 
-    public function field(string $name):FieldBuilder
+    public function field(string $name): FieldBuilder
     {
         return new FieldBuilder($this, $name);
     }
@@ -127,7 +127,7 @@ class TableBuilder
      * @param null $name
      * @return TableBuilder
      */
-    public function unique(array $fields, $name = null):TableBuilder
+    public function unique(array $fields, $name = null): TableBuilder
     {
         return $this->addIndex(new LazyUnique($this->table->getName(), $fields, $name));
     }
@@ -137,7 +137,7 @@ class TableBuilder
      * @param null $name
      * @return TableBuilder
      */
-    public function index(array $fields, $name = null):TableBuilder
+    public function index(array $fields, $name = null): TableBuilder
     {
         return $this->addIndex(new LazyIndex($this->table->getName(), $fields, $name));
     }
@@ -151,7 +151,7 @@ class TableBuilder
      * @param string|null $name
      * @return TableBuilder
      */
-    public function foreign(array $fields, string $referenceTable, array $referenceFields, ReferenceOption $onUpdate, ReferenceOption $onDelete, string $name = null):TableBuilder
+    public function foreign(array $fields, string $referenceTable, array $referenceFields, ReferenceOption $onUpdate, ReferenceOption $onDelete, string $name = null): TableBuilder
     {
         return $this->addIndex(new LazyForeignKey($this->table->getName(), $fields, $name, $referenceTable, $referenceFields, $onUpdate, $onDelete));
     }
@@ -161,7 +161,7 @@ class TableBuilder
      * @param string[] $fields
      * @return TableBuilder
      */
-    public function primary(array $fields):TableBuilder
+    public function primary(array $fields): TableBuilder
     {
         return $this->addIndex(new LazyPrimary($fields));
     }
@@ -279,7 +279,7 @@ class TableBuilder
      * @param $remaining
      * @return string[]
      */
-    protected static function splitFieldsAndConfiguration(string $remaining):array
+    protected static function splitFieldsAndConfiguration(string $remaining): array
     {
         $pos = StringUtils::findMatchingBracketPos("(" . $remaining) - 1;
         $allFields = substr($remaining, 0, $pos);

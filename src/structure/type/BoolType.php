@@ -22,10 +22,14 @@ class BoolType extends TinyIntType
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    public function toSql():string
+    public function toSql(): string
     {
         return "BOOL";
     }
 
+    public function toBuilderCode(): string
+    {
+        return '->type(Type::bool())';
+    }
 
 }

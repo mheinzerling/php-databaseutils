@@ -19,7 +19,7 @@ class TinyIntType extends IntType
         return null;
     }
 
-    public function toSql():string
+    public function toSql(): string
     {
         return "TINY" . parent::toSql();
     }

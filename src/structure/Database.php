@@ -31,12 +31,12 @@ class Database
     /**
      * @return Table[]
      */
-    public function getTables():array
+    public function getTables(): array
     {
         return $this->tables;
     }
 
-    public function getName():string
+    public function getName(): string
     {
         return $this->name;
 
@@ -47,7 +47,7 @@ class Database
         foreach ($this->tables as $table) $table->resolveLazyIndexes();
     }
 
-    public function toCreateSql(SqlSetting $setting):string
+    public function toCreateSql(SqlSetting $setting): string
     {
         //TODO create database (if not exists); setting withDatabase
         $sql = "";
@@ -63,7 +63,7 @@ class Database
      * @return Table[]
      * @throws \Exception
      */
-    private function topoOrder(array $tables):array
+    private function topoOrder(array $tables): array
     {
         $result = [];
         while (count($tables)) {
@@ -81,7 +81,7 @@ class Database
     }
 
 
-    public function toDropSql(SqlSetting $setting):string
+    public function toDropSql(SqlSetting $setting): string
     {
         $sql = "DROP DATABASE ";
         if ($setting->dropDatabaseIfExists) $sql .= "IF EXISTS ";
@@ -95,7 +95,7 @@ class Database
      * @param string[] $renames A rename mapping old=>new with table.field values
      * @return Migration operations to get from other to current schema
      */
-    public function migrate(Database $before, SqlSetting $setting, array $renames = null /*TODO*/):Migration
+    public function migrate(Database $before, SqlSetting $setting, array $renames = null /*TODO*/): Migration
     {
         $migration = new Migration();
         if ($this->name != $before->name) $migration->todo("TODO: rename database to >" . $this->name . "< from >" . $before->name . "<");
@@ -118,8 +118,21 @@ class Database
         return $migration;
     }
 
-    public function same(Database $other):bool
+    public function same(Database $other): bool
     {
         return $this->name == $other->name;
+    }
+
+    public function toBuilderCode(string $engine, string $defaultCharset, string $defaultCollation): string
+    {
+        $result = '(new DatabaseBuilder("' . $this->name . '"))';
+        $result .= '->defaultEngine("' . $engine . '")';
+        $result .= '->defaultCharset("' . $defaultCharset . '")';
+        $result .= '->defaultCollation("' . $defaultCollation . '")';
+        foreach ($this->tables as $table) {
+            $result .= $table->toBuilderCode();
+        }
+        $result .= "\n    ->build()";
+        return $result;
     }
 }

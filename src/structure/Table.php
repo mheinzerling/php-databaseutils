@@ -113,7 +113,7 @@ class Table
         return $this->fields;
     }
 
-    public function hasField(string $field):bool
+    public function hasField(string $field): bool
     {
         return isset($this->fields[$field]);
     }
@@ -122,7 +122,7 @@ class Table
      * @param Table[] $tables
      * @return bool
      */
-    public function hasForeignKeysOnlyOn(array $tables):bool
+    public function hasForeignKeysOnlyOn(array $tables): bool
     {
         if (empty($this->indexes)) return true;
         $names = array_keys($tables);
@@ -134,7 +134,7 @@ class Table
         return true;
     }
 
-    public function toCreateSql(SqlSetting $setting):string
+    public function toCreateSql(SqlSetting $setting): string
     {
         $delimiter = $setting->singleLine ? " " : "\n";
         $sql = 'CREATE TABLE ';
@@ -232,5 +232,21 @@ class Table
     public function same(Table $other)
     {
         return $this->database->same($other->database) && $this->name == $other->name;
+    }
+
+    public function toBuilderCode()
+    {
+        $result = "\n    ->table(\"" . $this->name . "\")";
+        foreach ($this->indexes as $index) {
+            $result .= $index->toBuilderCode();
+        }
+        if (count($this->indexes) > 0) $result .= "\n    ";
+        if ($this->currentAutoincrement != null) $result .= '->autoincrement(' . $this->currentAutoincrement . ')';
+        if ($this->charset != null) $result .= '->charset("' . $this->charset . '")';
+        if ($this->collation != null) $result .= '->collation("' . $this->collation . '")';
+        foreach ($this->fields as $field) {
+            $result .= $field->toBuilderCode();
+        }
+        return $result;
     }
 }

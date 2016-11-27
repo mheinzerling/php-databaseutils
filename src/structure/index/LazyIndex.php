@@ -33,7 +33,7 @@ class LazyIndex extends Index
      * @param Table $table
      * @return Index
      */
-    public function toIndex(Table $table):Index
+    public function toIndex(Table $table): Index
     {
         $result = [];
         foreach ($this->fieldNames as $fieldName) {

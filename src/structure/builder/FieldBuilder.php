@@ -64,17 +64,17 @@ class FieldBuilder
         $tb->addField($this->field);
     }
 
-    public function build():Database
+    public function build(): Database
     {
         return $this->complete()->build();
     }
 
-    public function table(string $name):TableBuilder
+    public function table(string $name): TableBuilder
     {
         return $this->complete()->table($name);
     }
 
-    public function field(string $name):FieldBuilder
+    public function field(string $name): FieldBuilder
     {
         return $this->complete()->field($name);
     }
@@ -89,49 +89,49 @@ class FieldBuilder
         return $this->tb;
     }
 
-    public function type(Type $type):FieldBuilder
+    public function type(Type $type): FieldBuilder
     {
         $this->type = $type;
         return $this;
     }
 
-    public function null(bool $null = true):FieldBuilder
+    public function null(bool $null = true): FieldBuilder
     {
         $this->null = $null;
         return $this;
     }
 
-    public function default(string $default = null):FieldBuilder
+    public function default(string $default = null): FieldBuilder
     {
         $this->default = $default;
         return $this;
     }
 
-    public function autoincrement(bool $autoincrement = true):FieldBuilder
+    public function autoincrement(bool $autoincrement = true): FieldBuilder
     {
         $this->autoincrement = $autoincrement;
         return $this;
     }
 
-    public function primary(bool $primary = true):FieldBuilder
+    public function primary(bool $primary = true): FieldBuilder
     {
         $this->primary = $primary;
         return $this;
     }
 
-    public function unique(bool $unique = true):FieldBuilder
+    public function unique(bool $unique = true): FieldBuilder
     {
         $this->unique = $unique;
         return $this;
     }
 
-    public function index(bool $index = true):FieldBuilder
+    public function index(bool $index = true): FieldBuilder
     {
         $this->index = $index;
         return $this;
     }
 
-    public function foreign(string $name = null, string $table, string $reference, ReferenceOption $onUpdate, ReferenceOption $onDelete):FieldBuilder
+    public function foreign(string $name = null, string $table, string $reference, ReferenceOption $onUpdate, ReferenceOption $onDelete): FieldBuilder
     {
 
         $this->foreign = [$name, $table, $reference, $onUpdate, $onDelete];

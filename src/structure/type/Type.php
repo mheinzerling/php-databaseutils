@@ -9,22 +9,24 @@ abstract class Type
 {
     public abstract function toSql(): string;
 
-    public static function int(int $length = null):IntType
+    public abstract function toBuilderCode(): string;
+
+    public static function int(int $length = null): IntType
     {
         return new IntType($length);
     }
 
-    public static function bool():IntType
+    public static function bool(): IntType
     {
         return new BoolType();
     }
 
-    public static function varchar(int $length, string $collation = null):VarcharType
+    public static function varchar(int $length, string $collation = null): VarcharType
     {
         return new VarcharType($length, $collation);
     }
 
-    public static function datetime():DatetimeType
+    public static function datetime(): DatetimeType
     {
         return new DatetimeType();
     }

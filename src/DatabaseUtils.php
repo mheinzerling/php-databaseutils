@@ -12,7 +12,7 @@ class DatabaseUtils
     const DUPLICATE_IGNORE = 1;
     const DUPLICATE_UPDATE = 2;
 
-    public static function insertAssoc(\PDO $pdo, string $table, array $data, int $onDuplicate = self::DUPLICATE_FAIL):int
+    public static function insertAssoc(\PDO $pdo, string $table, array $data, int $onDuplicate = self::DUPLICATE_FAIL): int
     {
         $keys = array_keys($data);
         $sql = self::startInsert($table, $keys, $onDuplicate);
@@ -20,7 +20,7 @@ class DatabaseUtils
         return self::onDuplicateAndExec($pdo, $onDuplicate, $keys, $sql, $data);
     }
 
-    public static function insertMultiple(\PDO $pdo, string $table, array $keys, array $datas, int $onDuplicate = self::DUPLICATE_FAIL):int
+    public static function insertMultiple(\PDO $pdo, string $table, array $keys, array $datas, int $onDuplicate = self::DUPLICATE_FAIL): int
     {
         $sql = self::startInsert($table, $keys, $onDuplicate);
         $row = "(" . substr(str_repeat("?, ", count($keys)), 0, -2) . "), ";
@@ -29,7 +29,7 @@ class DatabaseUtils
         return self::onDuplicateAndExec($pdo, $onDuplicate, $keys, $sql, array_values(ArrayUtils::flatten($datas)));
     }
 
-    private static function startInsert(string $table, array $keys, int $onDuplicate):string
+    private static function startInsert(string $table, array $keys, int $onDuplicate): string
     {
         $sql = 'INSERT ';
         if ($onDuplicate == self::DUPLICATE_IGNORE) $sql .= "IGNORE ";
@@ -38,7 +38,7 @@ class DatabaseUtils
         return $sql;
     }
 
-    private static function onDuplicateAndExec(\PDO $pdo, int $onDuplicate, array $keys, string $sql, array $params):int
+    private static function onDuplicateAndExec(\PDO $pdo, int $onDuplicate, array $keys, string $sql, array $params): int
     {
         if ($onDuplicate == self::DUPLICATE_UPDATE) {
             /** @noinspection PhpUnusedParameterInspection */
@@ -64,7 +64,7 @@ class DatabaseUtils
         }
     }
 
-    public static function exec(\PDO $pdo, string $query, array $values):\PDOStatement
+    public static function exec(\PDO $pdo, string $query, array $values): \PDOStatement
     {
         $stmt = $pdo->prepare($query);
         self::prepareObjects($values);
@@ -73,7 +73,7 @@ class DatabaseUtils
     }
 
 
-    public static function importDump(\PDO $pdo, string $sqlFile):bool
+    public static function importDump(\PDO $pdo, string $sqlFile): bool
     {
         $content = file_get_contents($sqlFile);
         $queries = explode(";\n", str_replace("\r", "", $content));

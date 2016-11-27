@@ -14,8 +14,13 @@ class DatetimeType extends Type
         return null;
     }
 
-    public function toSql():string
+    public function toSql(): string
     {
         return "DATETIME";
+    }
+
+    public function toBuilderCode(): string
+    {
+        return '->type(Type::datetime())';
     }
 }

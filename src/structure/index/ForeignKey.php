@@ -62,7 +62,7 @@ class ForeignKey extends Index
      * @param SqlSetting $setting
      * @return string
      */
-    public function toSql(SqlSetting $setting):string
+    public function toSql(SqlSetting $setting): string
     {
         $sql = "";
         if ($this->getName() != null) $sql .= "CONSTRAINT `" . $this->getName() . "` ";
@@ -75,4 +75,11 @@ class ForeignKey extends Index
         if ($this->onDelete != null) $sql .= $delimiter . "ON DELETE " . $this->onDelete->value();
         return $sql;
     }
+
+    public function toBuilderCode(): string
+    {
+        return '->foreign(["' . implode('", "', array_keys($this->fields)) . '"], "' . $this->referenceTable->getName() . '", ' .
+            '["' . implode('", "', array_keys($this->referenceFields)) . '"], ReferenceOption::' . $this->onUpdate->key() . '(), ReferenceOption::' . $this->onDelete->key() . '())';
+    }
+
 }

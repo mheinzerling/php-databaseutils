@@ -18,8 +18,13 @@ class Unique extends Index
         return "uni_" . reset($this->fields)->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
 
-    public function toSql(SqlSetting $setting):string
+    public function toSql(SqlSetting $setting): string
     {
         return "UNIQUE " . parent::toSql($setting);
+    }
+
+    public function toBuilderCode(): string
+    {
+        return '->unique(["' . implode('", "', array_keys($this->fields)) . '"])';
     }
 }

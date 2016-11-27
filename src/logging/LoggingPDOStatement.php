@@ -24,7 +24,7 @@ class LoggingPDOStatement extends \PDOStatement
         $this->statement = $statement;
     }
 
-    public function execute($input_parameters = null):bool
+    public function execute($input_parameters = null): bool
     {
         $start = microtime(true);
         try {
@@ -72,12 +72,12 @@ class LoggingPDOStatement extends \PDOStatement
         $this->statement->debugDumpParams();
     }
 
-    public function errorCode():string
+    public function errorCode(): string
     {
         return $this->statement->errorCode();
     }
 
-    public function errorInfo():array
+    public function errorInfo(): array
     {
         return $this->statement->errorInfo();
     }
@@ -87,7 +87,7 @@ class LoggingPDOStatement extends \PDOStatement
         return $this->statement->fetch($fetch_style, $cursor_orientation, $cursor_offset);
     }
 
-    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null):array
+    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null): array
     {
         //no idea why I neet this hack
         if ($fetch_style == null) return $this->statement->fetchAll();
@@ -116,22 +116,22 @@ class LoggingPDOStatement extends \PDOStatement
         return $this->statement->getColumnMeta($column);
     }
 
-    public function nextRowset():bool
+    public function nextRowset(): bool
     {
         return $this->statement->nextRowset();
     }
 
-    public function rowCount():int
+    public function rowCount(): int
     {
         return $this->statement->rowCount();
     }
 
-    public function setAttribute($attribute, $value):bool
+    public function setAttribute($attribute, $value): bool
     {
         return $this->statement->setAttribute($attribute, $value);
     }
 
-    public function setFetchMode($mode, $param = null):bool
+    public function setFetchMode($mode, $param = null): bool
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         return $this->statement->setFetchMode($mode, $param);

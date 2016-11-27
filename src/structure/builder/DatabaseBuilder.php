@@ -32,13 +32,13 @@ class DatabaseBuilder
         $this->database = new Database($name);
     }
 
-    public function build():Database
+    public function build(): Database
     {
         $this->database->resolveLazyIndexes();
         return $this->database;
     }
 
-    public function table(string $name):TableBuilder
+    public function table(string $name): TableBuilder
     {
         return new TableBuilder($this, $name);
     }
@@ -62,7 +62,7 @@ class DatabaseBuilder
     }
 
 
-    public function getName():string
+    public function getName(): string
     {
         return $this->database->getName();
     }
@@ -106,7 +106,7 @@ class DatabaseBuilder
      * @param string[] $booleanFields
      * @return Database
      */
-    public static function fromDatabase(\PDO $pdo, array $booleanFields = []):Database
+    public static function fromDatabase(\PDO $pdo, array $booleanFields = []): Database
     {
         $dbName = $pdo->query("SELECT DATABASE();")->fetchColumn();
         $db = new DatabaseBuilder($dbName);
@@ -118,7 +118,7 @@ class DatabaseBuilder
         return $db->build();
     }
 
-    public static function fromSql(string $sql):Database
+    public static function fromSql(string $sql): Database
     {
         $db = new DatabaseBuilder(""); //TODO parse create database / use
         $queries = StringUtils::trimExplode(';', $sql); // TODO more stable

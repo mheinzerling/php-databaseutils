@@ -73,7 +73,7 @@ class Field
         return $this->table->getName() . "." . $this->name;
     }
 
-    public function toSql(SqlSetting $setting):string
+    public function toSql(SqlSetting $setting): string
     {
         $sql = '`' . $this->name . '` ';
         $sql .= $this->type->toSql() . ' ';
@@ -84,12 +84,12 @@ class Field
         return trim($sql);
     }
 
-    public function roAlterAddSql(SqlSetting $setting):string
+    public function roAlterAddSql(SqlSetting $setting): string
     {
         return 'ADD ' . $this->toSql($setting) . ";";
     }
 
-    public function toAlterDropSql(SqlSetting $setting):string
+    public function toAlterDropSql(SqlSetting $setting): string
     {
         return 'DROP COLUMN `' . $this->name . '`;';
     }
@@ -108,9 +108,19 @@ class Field
         return 'MODIFY ' . $this->toSql($setting);
     }
 
-    public function same(Field $other):bool
+    public function same(Field $other): bool
     {
         return $this->table->same($other->table) && $this->name == $other->name;
+    }
+
+    public function toBuilderCode(): string
+    {
+        $result = "\n    ->field(\"" . $this->name . "\")";
+        $result .= $this->type->toBuilderCode();
+        if ($this->autoincrement != null) $result .= '->autoincrement()';
+        if ($this->default != null) $result .= '->default("' . $this->default . '")';
+        if ($this->null) $result .= '->null()';
+        return $result;
     }
 
 }
