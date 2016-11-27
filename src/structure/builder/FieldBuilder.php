@@ -79,7 +79,7 @@ class FieldBuilder
         return $this->complete()->field($name);
     }
 
-    private function complete(): TableBuilder
+    public function complete(): TableBuilder
     {
         $this->field->init($this->type, $this->null, $this->default, $this->autoincrement);
         if ($this->primary) $this->tb->appendPrimary($this->field);

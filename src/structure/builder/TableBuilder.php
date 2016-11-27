@@ -89,7 +89,7 @@ class TableBuilder
         return $this;
     }
 
-    private function complete():DatabaseBuilder
+    public function complete():DatabaseBuilder
     {
         $this->table->init($this->engine != null ? $this->engine : $this->db->getDefaultEngine(),
             $this->charset != null ? $this->charset : $this->db->getDefaultCharset(),
