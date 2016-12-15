@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -15,7 +16,7 @@ class Primary extends Index
         parent::__construct($fields, Primary::PRIMARY);
     }
 
-    public function append(Field $field)
+    public function append(Field $field): void
     {
         $this->fields[$field->getName()] = $field;
     }
@@ -45,13 +46,14 @@ class Primary extends Index
      * @param SqlSetting $setting
      * @return null|string
      */
-    public function modifySql(Index $before, SqlSetting $setting)
+    public function modifySql(Index $before, SqlSetting $setting):?string
     {
         if (!$before instanceof Primary) return "TODO: change index type to primary " . $this->getName();
         if ($this->same($before)) return null;
         return "TODO: PRIMARY changed to (" . implode(", ", array_keys($this->fields)) . ") from (" . implode(", ", array_keys($before->fields)) . ") ";
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function toBuilderCode(): string
     {
         return '->primary(["' . implode('", "', array_keys($this->fields)) . '"])';

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\type;
 
@@ -20,11 +21,7 @@ class EnumType extends Type
         $this->values = $values;
     }
 
-    /**
-     * @param string $type
-     * @return EnumType|null
-     */
-    public static function parseEnum(string $type)
+    public static function parseEnum(string $type): ?EnumType
     {
         if (!StringUtils::startsWith(strtolower($type), "enum")) return null;
         preg_match_all("@'([^']*)'@", $type, $matches);

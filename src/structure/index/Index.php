@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -35,7 +36,7 @@ class Index
     /**
      * @param Table $table
      */
-    public function setTable(Table $table)
+    public function setTable(Table $table): void
     {
         $this->table = $table;
     }
@@ -51,12 +52,7 @@ class Index
     }
 
 
-    /**
-     * @param TableBuilder $tb
-     * @param string $constraint
-     * @return void
-     */
-    public static function fromSql(TableBuilder $tb, string $constraint)
+    public static function fromSql(TableBuilder $tb, string $constraint): void
     {
         //TODO more robust
         if (StringUtils::contains($constraint, "FOREIGN KEY", true)) {
@@ -93,7 +89,7 @@ class Index
         return $this->name;
     }
 
-    protected function getGeneratedName()
+    protected function getGeneratedName(): string
     {
         return "idx_" . $this->table->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
@@ -126,12 +122,7 @@ class Index
         return "DROP KEY `" . $this->name . "`";
     }
 
-    /**
-     * @param Index $before
-     * @param SqlSetting $setting
-     * @return string|null
-     */
-    public function modifySql(Index $before, SqlSetting $setting)
+    public function modifySql(Index $before, SqlSetting $setting):?string
     {
         if ($this->same($before)) return null;
         return "TODO: change index " . $this->name;

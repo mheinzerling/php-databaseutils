@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\builder;
 
@@ -144,7 +145,7 @@ class FieldBuilder
      * @param array $fkRows
      * @param string[] $booleanFields
      */
-    public static function fromDatabase(TableBuilder $tb, array $fieldRow, array $fkRows, array $booleanFields = [])
+    public static function fromDatabase(TableBuilder $tb, array $fieldRow, array $fkRows, array $booleanFields = []): void
     {
         $fb = $tb->field($fieldRow['Field'])
             ->typeFromSql($fieldRow['Type'], $fieldRow['Collation'], $booleanFields)
@@ -161,12 +162,12 @@ class FieldBuilder
         $fb->complete();
     }
 
-    private function typeFromSql($sqlTypeString, $collation, array $booleanFields = [])
+    private function typeFromSql($sqlTypeString, $collation, array $booleanFields = []): FieldBuilder
     {
         return $this->type(Type::fromSql($sqlTypeString, $collation, in_array($this->field->getFullName(), $booleanFields)));
     }
 
-    public static function fromSql(TableBuilder $tb, string $field)
+    public static function fromSql(TableBuilder $tb, string $field): void
     {
         if (
             StringUtils::startsWith($field, "PRIMARY", true) ||

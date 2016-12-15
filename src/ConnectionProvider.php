@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database;
 
@@ -13,7 +14,7 @@ class ConnectionProvider
 
     /**
      * @return \PDO
-     * @throws \Exception
+     * @throws DatabaseException
      */
     public static function get(): \PDO
     {
@@ -21,19 +22,13 @@ class ConnectionProvider
         return self::$connection;
     }
 
-    /**
-     * @param \PDO $connection
-     * @return void
-     */
-    public static function set(\PDO $connection)//:void
+
+    public static function set(\PDO $connection): void
     {
         self::$connection = $connection;
     }
 
-    /**
-     * @return void
-     */
-    public static function reset() //:void
+    public static function reset(): void
     {
         self::$connection = null;
     }

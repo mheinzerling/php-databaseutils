@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure\type;
 
 
@@ -10,11 +11,7 @@ class BoolType extends TinyIntType
         parent::__construct(1);
     }
 
-    /**
-     * @param string $type
-     * @return BoolType|null
-     */
-    public static function parseBool(string $type)
+    public static function parseBool(string $type):?BoolType
     {
         if (preg_match("@^tinyint\((\d+)\)$@i", $type, $match)) return new BoolType();
         if (preg_match("@^bool$@i", $type, $match)) return new BoolType();
@@ -27,6 +24,7 @@ class BoolType extends TinyIntType
         return "BOOL";
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function toBuilderCode(): string
     {
         return '->type(Type::bool())';

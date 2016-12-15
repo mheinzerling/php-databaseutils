@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure;
 
 
@@ -36,7 +37,7 @@ class Field
         $this->name = $name;
     }
 
-    public function init(Type $type, bool $null, string $default = null, bool $autoincrement)
+    public function init(Type $type, bool $null, string $default = null, bool $autoincrement): void
     {
         $this->autoincrement = $autoincrement;
         $this->default = $default;
@@ -44,31 +45,22 @@ class Field
         $this->type = $type;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param Table $table
-     */
-    public function setTable(Table $table)
+    public function setTable(Table $table): void
     {
         $this->table = $table;
     }
 
-    /**
-     * @return Table
-     */
     public function getTable(): Table
     {
         return $this->table;
     }
 
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->table->getName() . "." . $this->name;
     }
@@ -95,12 +87,7 @@ class Field
     }
 
 
-    /**
-     * @param Field $before
-     * @param SqlSetting $setting
-     * @return null|string the MODIFY SQL part of an ALTER TABLE
-     */
-    public function modifySql(Field $before, SqlSetting $setting) /*: ?string*/
+    public function modifySql(Field $before, SqlSetting $setting): ?string
     {
         //TODO rename
         $diff = $this->type != $before->type || $this->null != $before->null || $this->default != $before->default || $this->autoincrement != $before->autoincrement;

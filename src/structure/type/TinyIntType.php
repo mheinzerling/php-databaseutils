@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure\type;
 
 
@@ -9,11 +10,7 @@ class TinyIntType extends IntType
         parent::__construct($zerofillLength);
     }
 
-    /**
-     * @param string $type
-     * @return TinyIntType|null
-     */
-    public static function parseTinyInt(string $type)
+    public static function parseTinyInt(string $type):?TinyIntType
     {
         if (preg_match("@^tinyint\((\d+)\)$@i", $type, $match)) return new TinyIntType($match[1]);
         return null;

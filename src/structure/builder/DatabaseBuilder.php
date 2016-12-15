@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\builder;
 
@@ -43,19 +44,19 @@ class DatabaseBuilder
         return new TableBuilder($this, $name);
     }
 
-    public function defaultEngine(string $defaultEngine)
+    public function defaultEngine(string $defaultEngine): DatabaseBuilder
     {
         $this->defaultEngine = $defaultEngine;
         return $this;
     }
 
-    public function defaultCharset(string $defaultCharset)
+    public function defaultCharset(string $defaultCharset): DatabaseBuilder
     {
         $this->defaultCharset = $defaultCharset;
         return $this;
     }
 
-    public function defaultCollation(string $defaultCollation)
+    public function defaultCollation(string $defaultCollation): DatabaseBuilder
     {
         $this->defaultCollation = $defaultCollation;
         return $this;
@@ -67,35 +68,23 @@ class DatabaseBuilder
         return $this->database->getName();
     }
 
-    /**
-     * @return string|null
-     */
-    public function getDefaultEngine()
+
+    public function getDefaultEngine():?string
     {
         return $this->defaultEngine;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getDefaultCharset()
+    public function getDefaultCharset():?string
     {
         return $this->defaultCharset;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getDefaultCollation()
+    public function getDefaultCollation():?string
     {
         return $this->defaultCollation;
     }
 
-    /**
-     * @param Table $table
-     * @return void
-     */
-    public function addTable(Table $table)
+    public function addTable(Table $table): void
     {
         $this->database->addTable($table);
     }

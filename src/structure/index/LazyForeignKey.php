@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -47,12 +48,12 @@ class LazyForeignKey extends ForeignKey
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function getGeneratedName()
+    protected function getGeneratedName(): string
     {
         return "fk_" . $this->tableName . "_" . implode("_", $this->fieldNames) . "__" . $this->referenceTableName . "_" . implode("_", $this->referenceFields);
     }
 
-    public function append(LazyForeignKey $other)
+    public function append(LazyForeignKey $other): void
     {
         if ($this->getName() != $other->getName() || $this->tableName != $other->tableName || $this->onUpdate != $other->onUpdate || $this->onDelete != $other->onUpdate)
             throw new \Exception("Tried to merge unrelated lazy foreign keys");

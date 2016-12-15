@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database;
 
@@ -51,11 +52,7 @@ class DatabaseUtils
         return $stmt->rowCount();
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
-    private static function prepareObjects(array &$data)
+    private static function prepareObjects(array &$data): void
     {
         foreach ($data as $key => &$value) {
             if ($value instanceof \DateTime) {

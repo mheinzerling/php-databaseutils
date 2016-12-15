@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure\type;
 
 
@@ -19,14 +20,9 @@ class VarcharType extends Type
         $this->collation = $collation;
     }
 
-    /**
-     * @param string $type
-     * @param string $collation
-     * @return VarcharType|null
-     */
-    public static function parseVarchar(string $type, string $collation = null)
+    public static function parseVarchar(string $type, string $collation = null): ?VarcharType
     {
-        if (preg_match("@^varchar\((\d+)\)$@i", $type, $match)) return new VarcharType($match[1], $collation);
+        if (preg_match("@^varchar\((\d+)\)$@i", $type, $match)) return new VarcharType(intval($match[1]), $collation);
         return null;
     }
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -13,7 +14,7 @@ class Unique extends Index
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function getGeneratedName()
+    protected function getGeneratedName(): string
     {
         return "uni_" . reset($this->fields)->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields);
     }
@@ -23,6 +24,7 @@ class Unique extends Index
         return "UNIQUE " . parent::toSql($setting);
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function toBuilderCode(): string
     {
         return '->unique(["' . implode('", "', array_keys($this->fields)) . '"])';

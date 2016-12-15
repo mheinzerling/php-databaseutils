@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure\type;
 
 
@@ -35,7 +36,7 @@ abstract class Type
      * @param AbstractEnumeration[] $values
      * @return EnumType
      */
-    public static function enum(array $values)
+    public static function enum(array $values): EnumType
     {
         return new EnumType($values);
     }
@@ -47,7 +48,7 @@ abstract class Type
      * @return Type|null
      * @throws \Exception
      */
-    public static function fromSql(string $type, string $collation = null, bool $isBoolean = false)
+    public static function fromSql(string $type, string $collation = null, bool $isBoolean = false): Type
     {
         //TODO register parser
         $result = BoolType::parseBool($type);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\logging;
 
@@ -59,10 +60,10 @@ class LoggingPDO extends \PDO
     /**
      * @param string $type
      * @param string $query
-     * @param int $timeInMillies
+     * @param float $timeInMillies
      * @param int|bool $result
      */
-    public function log(string $type, string $query, int $timeInMillies, $result)
+    public function log(string $type, string $query, float $timeInMillies, $result)
     {
         $this->log[] = ['query' => "[" . $type . "] " . $query, 'time' => round($timeInMillies, 6), 'result' => $result];
     }
@@ -73,9 +74,9 @@ class LoggingPDO extends \PDO
         $result = '';
         foreach ($this->log as $entry) {
             $totalTime += $entry['time'];
-            $result .= str_pad($entry['time'], 10, " ", STR_PAD_LEFT) . ' - [' . $entry['result'] . '] - ' . $entry['query'] . "\n";
+            $result .= str_pad((string)$entry['time'], 10, " ", STR_PAD_LEFT) . ' - [' . $entry['result'] . '] - ' . $entry['query'] . "\n";
         }
-        $result .= str_pad($totalTime, 10, " ", STR_PAD_LEFT) . ' - ' . count($this->log) . "\n";
+        $result .= str_pad((string)$totalTime, 10, " ", STR_PAD_LEFT) . ' - ' . count($this->log) . "\n";
         return $result;
     }
 

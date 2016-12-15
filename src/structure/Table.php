@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure;
 
@@ -52,12 +53,6 @@ class Table
         $this->name = $name;
     }
 
-    /**
-     * @param string|null $engine
-     * @param string|null $charset
-     * @param string|null $collation
-     * @param int|null $currentAutoincrement
-     */
     public function init(string $engine = null, string $charset = null, string $collation = null, int $currentAutoincrement = null)
     {
         $this->engine = $engine;
@@ -72,19 +67,19 @@ class Table
         return $this->name;
     }
 
-    public function addField(Field $field)
+    public function addField(Field $field): void
     {
         $this->fields[$field->getName()] = $field;
         $field->setTable($this);
     }
 
-    public function addIndex(Index $index)
+    public function addIndex(Index $index): void
     {
         $this->indexes[$index->getName()] = $index;
         $index->setTable($this);
     }
 
-    public function resolveLazyIndexes()
+    public function resolveLazyIndexes(): void
     {
         foreach ($this->indexes as &$index) {
             if (StringUtils::contains(get_class($index), "lazy")) {
@@ -165,13 +160,7 @@ class Table
         return $sql;
     }
 
-
-    /**
-     * @param Migration $migration
-     * @param Table $before
-     * @param SqlSetting $setting
-     */
-    public function migrate(Migration $migration, Table $before, SqlSetting $setting)
+    public function migrate(Migration $migration, Table $before, SqlSetting $setting): void
     {
         //TODO rename
         $meta = [];
@@ -180,7 +169,7 @@ class Table
         if ($this->collation != $before->collation) $meta[] = "COLLATE " . $this->collation;
         if ($this->currentAutoincrement != $before->currentAutoincrement) $meta[] = "AUTO_INCREMENT = " . $this->currentAutoincrement;
         if (count($meta) > 0) {
-            $migration->tableMeta($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $meta));
+            $migration->tableMeta('ALTER TABLE `' . $this->name . '` ' . implode(", ", $meta));
         }
 
         $self = [];
@@ -221,20 +210,20 @@ class Table
         }
 
         if (count($self) > 0) {
-            $migration->tableStructure($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $self));
+            $migration->tableStructure('ALTER TABLE `' . $this->name . '` ' . implode(", ", $self));
         }
 
         if (count($foreign) > 0) {
-            $migration->tableKeys($this->name, 'ALTER TABLE `' . $this->name . '` ' . implode(", ", $foreign));
+            $migration->tableKeys('ALTER TABLE `' . $this->name . '` ' . implode(", ", $foreign));
         }
     }
 
-    public function same(Table $other)
+    public function same(Table $other): bool
     {
         return $this->database->same($other->database) && $this->name == $other->name;
     }
 
-    public function toBuilderCode()
+    public function toBuilderCode(): string
     {
         $result = "\n    ->table(\"" . $this->name . "\")";
         foreach ($this->indexes as $index) {

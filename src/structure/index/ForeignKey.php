@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -45,7 +46,7 @@ class ForeignKey extends Index
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function getGeneratedName()
+    protected function getGeneratedName(): string
     {
         return "fk_" . $this->fields[0]->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields) . "__" . $this->referenceTable->getName() . "_" . $this->getImplodedFieldNames($this->referenceFields);
     }
@@ -76,6 +77,7 @@ class ForeignKey extends Index
         return $sql;
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function toBuilderCode(): string
     {
         return '->foreign(["' . implode('", "', array_keys($this->fields)) . '"], "' . $this->referenceTable->getName() . '", ' .

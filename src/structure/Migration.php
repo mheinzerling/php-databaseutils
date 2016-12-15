@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure;
 
@@ -8,15 +9,18 @@ use mheinzerling\commons\ArrayUtils;
 class Migration
 {
 
+    /**
+     * @var array
+     */
     private $statements = [100 => [], 200 => [], 300 => [], 400 => [], 500 => [], 800 => [], 999 => []];
 
-    public function getStatements()
+    public function getStatements(): array
     {
         ksort($this->statements);
         return ArrayUtils::flatten($this->statements);
     }
 
-    public function run(\PDO $pdo)
+    public function run(\PDO $pdo): void
     {
         $pdo->beginTransaction();
         try {
@@ -31,32 +35,32 @@ class Migration
         }
     }
 
-    public function dropTable($tableName, $statement)
+    public function dropTable(string $statement): void
     {
         $this->statements[100][] = $statement;
     }
 
-    public function tableMeta($tableName, $statement)
+    public function tableMeta(string $statement): void
     {
         $this->statements[200][] = $statement;
     }
 
-    public function tableStructure($tableName, $statement)
+    public function tableStructure(string $statement): void
     {
         $this->statements[400][] = $statement;
     }
 
-    public function tableKeys($tableName, $statement)
+    public function tableKeys(string $statement): void
     {
         $this->statements[800][] = $statement;
     }
 
-    public function addTable($tableName, $statement)
+    public function addTable(string $statement): void
     {
         $this->statements[500][] = $statement;
     }
 
-    public function todo($statement)
+    public function todo($statement): void
     {
         $this->statements[999][] = $statement;
     }

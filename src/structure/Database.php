@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure;
 
@@ -9,7 +10,7 @@ use mheinzerling\commons\ArrayUtils;
 class Database
 {
     /**
-     * @var string@null
+     * @var string|null
      */
     private $name;
     /**
@@ -22,7 +23,7 @@ class Database
         $this->name = $name;
     }
 
-    public function addTable(Table $table)
+    public function addTable(Table $table): void
     {
         $this->tables[$table->getName()] = $table;
         $table->setDatabase($this);
@@ -42,7 +43,7 @@ class Database
 
     }
 
-    public function resolveLazyIndexes()
+    public function resolveLazyIndexes(): void
     {
         foreach ($this->tables as $table) $table->resolveLazyIndexes();
     }
@@ -104,12 +105,12 @@ class Database
         $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
         foreach ($tablesNames as $name) {
             if (!isset($myTables[$name])) {
-                $migration->dropTable($name, $otherTables[$name]->toDropQuery($setting));
+                $migration->dropTable($otherTables[$name]->toDropQuery($setting));
                 continue;
             }
 
             if (!isset($otherTables[$name])) {
-                $migration->addTable($name, $myTables[$name]->toCreateSql($setting));
+                $migration->addTable($myTables[$name]->toCreateSql($setting));
                 continue;
             }
 

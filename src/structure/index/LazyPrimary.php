@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -7,6 +8,9 @@ use mheinzerling\commons\database\structure\Table;
 
 class LazyPrimary extends Primary
 {
+    /**
+     * @var string[]
+     */
     private $fieldNames;
 
     public function __construct(array $fieldNames)

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure\type;
 
 class IntType extends Type
@@ -13,13 +14,9 @@ class IntType extends Type
         $this->zerofillLength = $zerofillLength;
     }
 
-    /**
-     * @param string $type
-     * @return IntType|null
-     */
-    public static function parseInt(string $type)
+    public static function parseInt(string $type):?IntType
     {
-        if (preg_match("@^int\((\d+)\)$@i", $type, $match)) return new IntType($match[1]);
+        if (preg_match("@^int\((\d+)\)$@i", $type, $match)) return new IntType(intval($match[1]));
         if (preg_match("@^int$@i", $type, $match)) return new IntType(null);
         return null;
     }

@@ -16,6 +16,7 @@ Some useful utilities for database access and modification.
 * overwrite TestDatabaseConnection parameter via environment variables
 * rename PersistenceProvider to ConnectionProvider
 * make log in LoggingPDO non-static
+* PHP 7.1
 
 ### 2.0.2
 * LoggingPDOStatement extends PDOStatement

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\logging;
 
@@ -49,7 +50,8 @@ class LoggingPDOStatement extends \PDOStatement
 
     public function bindParam($parameter, &$variable, $data_type = \PDO::PARAM_STR, $length = null, $driver_options = null)
     {
-        return $this->statement->bindParam($parameter, $variable, $data_type, $length, $driver_options);
+        //TODO signature hack
+        return $this->statement->bindParam($parameter, $variable, $data_type, $length == null ? 0 : $length, $driver_options);
     }
 
     public function bindValue($parameter, $value, $data_type = \PDO::PARAM_STR)

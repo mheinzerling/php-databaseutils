@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\index;
 
@@ -24,7 +25,7 @@ class LazyIndex extends Index
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function getGeneratedName()
+    protected function getGeneratedName(): string
     {
         return "idx_" . $this->tableName . "_" . implode("_", $this->fieldNames);
     }

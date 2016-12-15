@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database\structure\builder;
 
@@ -117,7 +118,7 @@ class TableBuilder
         return new FieldBuilder($this, $name);
     }
 
-    public function addField(Field $field)
+    public function addField(Field $field): void
     {
         $this->table->addField($field);
     }
@@ -166,7 +167,7 @@ class TableBuilder
         return $this->addIndex(new LazyPrimary($fields));
     }
 
-    public function appendPrimary(Field $field)
+    public function appendPrimary(Field $field): void
     {
         if (isset($this->indexes[Primary::PRIMARY])) {
             /**
@@ -178,7 +179,7 @@ class TableBuilder
         } else $this->indexes[Primary::PRIMARY] = new Primary([$field->getName() => $field]);
     }
 
-    public function addIndex(Index $index)
+    public function addIndex(Index $index): TableBuilder
     {
         $index->setTable($this->table);
         if (isset($this->indexes[$index->getName()]) && $index instanceof LazyForeignKey) {
@@ -202,9 +203,9 @@ class TableBuilder
      * @param int $currentAutoincrement
      * @param string[] $booleanFields
      */
-    public static function fromDatabase(\PDO $pdo, DatabaseBuilder $db, string $tableName, string $engine, string $collation, int $currentAutoincrement = null, array $booleanFields = [])
+    public static function fromDatabase(\PDO $pdo, DatabaseBuilder $db, string $tableName, string $engine, string $collation, string $currentAutoincrement = null, array $booleanFields = []): void
     {
-        $tb = $db->table($tableName)->engine($engine)->charset(explode("_", $collation, 2)[0])->collation($collation)->autoincrement($currentAutoincrement);
+        $tb = $db->table($tableName)->engine($engine)->charset(explode("_", $collation, 2)[0])->collation($collation)->autoincrement(intval($currentAutoincrement));
 
 
         $fks = $pdo->query('SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS k, INFORMATION_SCHEMA.referential_constraints AS r
@@ -245,7 +246,7 @@ class TableBuilder
      * @return void
      * @throws \Exception
      */
-    public static function fromSqlCreate(DatabaseBuilder $db, string $sql)
+    public static function fromSqlCreate(DatabaseBuilder $db, string $sql): void
     {
         list($tableName, $remaining) = explode('(', $sql, 2);
         $tableName = trim(str_replace(["CREATE TABLE", "IF NOT EXISTS", "`"], "", $tableName));
@@ -255,7 +256,7 @@ class TableBuilder
 
         $tb->engine(StringUtils::findAndRemove($remaining, "@ENGINE\s*=\s*(\w+)@i"))
             ->charset(StringUtils::findAndRemove($remaining, "@DEFAULT CHARSET\s*=\s*(\w+)@i"))
-            ->autoincrement(StringUtils::findAndRemove($remaining, "@AUTO_INCREMENT\s*=\s*(\d+)@i"));
+            ->autoincrement(intval(StringUtils::findAndRemove($remaining, "@AUTO_INCREMENT\s*=\s*(\d+)@i")));
 
         $remaining = trim($remaining);
         if (!empty($remaining)) throw new \Exception("TODO: unhandled SQL CREATE TABLE statement configuration parts >" . $remaining . "<");

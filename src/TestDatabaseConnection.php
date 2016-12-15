@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace mheinzerling\commons\database;
 
@@ -29,17 +30,14 @@ class TestDatabaseConnection extends LoggingPDO
         if ($dropDatabaseAtShutdown) register_shutdown_function([$this, "deleteDatabase"]);
     }
 
-    private static function envWithFallback(string $key, $default): string
+    private static function envWithFallback(string $key, string $default = null): string
     {
         $value = getenv($key);
         if ($value === false) return $default;
         return $value;
     }
 
-    /**
-     * @return void
-     */
-    public function deleteDatabase()
+    public function deleteDatabase(): void
     {
         $this->exec("DROP DATABASE IF EXISTS `" . $this->databaseName . "`");
     }
@@ -49,7 +47,7 @@ class TestDatabaseConnection extends LoggingPDO
         return $this->query("DESCRIBE `" . $tableName . "`")->fetchAll($fetchType);
     }
 
-    public function getAssertableLog()
+    public function getAssertableLog(): string
     {
         $withoutTime = preg_replace("@\d+\.\d+@", "X", $this->getLog());
         $withoutStartingWhitespace = preg_replace("@^\s+@m", "", $withoutTime);
@@ -58,9 +56,7 @@ class TestDatabaseConnection extends LoggingPDO
         return $withoutWindowsLinebreak;
     }
 
-    /**
-     * @return string
-     */
+
     public function getDatabaseName(): string
     {
         return $this->databaseName;
