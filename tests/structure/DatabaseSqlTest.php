@@ -31,8 +31,8 @@ class DatabaseSqlTest extends \PHPUnit_Framework_TestCase
             ->field("payload")->type(Type::int(11))->null()
             ->field("cprovider")->type(Type::varchar(255, "latin1_swedish_ci"))
             ->field("cuid")->type(Type::varchar(255, "latin1_swedish_ci"))
-            ->build()->toCreateSql(new SqlSetting());
-        static::assertEquals($expected, $actual);
+            ->build()->migrate(new Database(""), new SqlSetting())->getStatements();
+        static::assertEquals($expected, implode("\n\n", $actual));
 
     }
 

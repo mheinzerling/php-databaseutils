@@ -4,9 +4,6 @@ declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure;
 
 
-use mheinzerling\commons\ArrayUtils;
-
-
 class Database
 {
     /**
@@ -48,16 +45,6 @@ class Database
         foreach ($this->tables as $table) $table->resolveLazyIndexes();
     }
 
-    public function toCreateSql(SqlSetting $setting): string
-    {
-        //TODO create database (if not exists); setting withDatabase
-        $sql = "";
-        foreach ($this->topoOrder($this->tables) as $table) {
-            $sql .= $table->toCreateSql($setting);
-            $sql .= "\n\n";
-        }
-        return trim($sql);
-    }
 
     /**
      * @param Table[] $tables
@@ -81,6 +68,13 @@ class Database
         return $result;
     }
 
+    public function toCreateSql(SqlSetting $setting): string
+    {
+        //TODO create database (if not exists); setting withDatabase
+        $sql = "CREATE DATABASE ";
+        $sql .= "`" . $this->name . "`;";
+        return $sql;
+    }
 
     public function toDropSql(SqlSetting $setting): string
     {
@@ -100,9 +94,14 @@ class Database
     {
         $migration = new Migration();
         if ($this->name != $before->name) $migration->todo("TODO: rename database to >" . $this->name . "< from >" . $before->name . "<");
-        $myTables = $this->getTables();
-        $otherTables = $before->getTables();
-        $tablesNames = ArrayUtils::mergeAndSortArrayKeys($myTables, $otherTables);
+        $myTables = $this->topoOrder($this->getTables());
+        $otherTables = $this->topoOrder($before->getTables());
+        $tablesNames = array_keys($myTables);
+        foreach (array_keys($otherTables) as $t) {
+            if (in_array($t, $tablesNames)) continue;
+            $tablesNames[] = $t;
+        }
+
         foreach ($tablesNames as $name) {
             if (!isset($myTables[$name])) {
                 $migration->dropTable($otherTables[$name]->toDropQuery($setting));
@@ -135,5 +134,10 @@ class Database
         }
         $result .= "\n    ->build()";
         return $result;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

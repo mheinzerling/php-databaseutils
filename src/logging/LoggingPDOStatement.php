@@ -86,12 +86,16 @@ class LoggingPDOStatement extends \PDOStatement
 
     public function fetch($fetch_style = null, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
     {
+        //overloading hack
+        if ($fetch_style == null) return $this->statement->fetch();
+        if ($cursor_orientation == null) return $this->statement->fetch($fetch_style);
+        if ($cursor_offset == null) return $this->statement->fetch($fetch_style, $cursor_orientation);
         return $this->statement->fetch($fetch_style, $cursor_orientation, $cursor_offset);
     }
 
     public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null): array
     {
-        //no idea why I neet this hack
+        //overloading hack
         if ($fetch_style == null) return $this->statement->fetchAll();
         if ($fetch_argument == null) return $this->statement->fetchAll($fetch_style);
         if ($ctor_args == null) return $this->statement->fetchAll($fetch_style, $fetch_argument);

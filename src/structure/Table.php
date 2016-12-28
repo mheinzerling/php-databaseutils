@@ -10,6 +10,7 @@ use mheinzerling\commons\database\structure\index\Index;
 use mheinzerling\commons\database\structure\index\LazyForeignKey;
 use mheinzerling\commons\database\structure\index\LazyIndex;
 use mheinzerling\commons\database\structure\index\LazyUnique;
+use mheinzerling\commons\database\structure\index\Primary;
 use mheinzerling\commons\StringUtils;
 
 
@@ -129,6 +130,46 @@ class Table
         return true;
     }
 
+    /**
+     * @return Index[]
+     */
+    public function getIndexed(): array
+    {
+        return $this->indexes;
+    }
+
+    /**
+     * @return ForeignKey[]
+     */
+    public function getForeignKeys(): array
+    {
+        return array_filter($this->indexes, function (Index $i) {
+            return $i instanceof ForeignKey;
+        });
+    }
+
+
+    public function getPrimary(): ?Primary
+    {
+        $primaries = array_filter($this->indexes, function (Index $p) {
+            return $p instanceof Primary;
+        });
+        if (count($primaries) == null) return null;
+        else if (count($primaries) > 1) throw new \Exception("Unsupported");
+        return reset($primaries);
+    }
+
+    public function getAutoIncrement(): ?Field
+    {
+        $autos = array_filter($this->fields, function (Field $f) {
+            return $f->isAutoincrement();
+        });
+        if (count($autos) == null) return null;
+        else if (count($autos) > 1) throw new \Exception("Unsupported");
+        return reset($autos);
+    }
+
+
     public function toCreateSql(SqlSetting $setting): string
     {
         $delimiter = $setting->singleLine ? " " : "\n";
@@ -229,7 +270,7 @@ class Table
         foreach ($this->indexes as $index) {
             $result .= $index->toBuilderCode();
         }
-        if (count($this->indexes) > 0) $result .= "\n    ";
+        if (count($this->indexes) > 0 && ($this->currentAutoincrement != null || $this->charset != null || $this->collation != null)) $result .= "\n    ";
         if ($this->currentAutoincrement != null) $result .= '->autoincrement(' . $this->currentAutoincrement . ')';
         if ($this->charset != null) $result .= '->charset("' . $this->charset . '")';
         if ($this->collation != null) $result .= '->collation("' . $this->collation . '")';

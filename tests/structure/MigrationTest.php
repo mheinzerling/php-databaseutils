@@ -52,11 +52,11 @@ class MigrationTest extends \PHPUnit_Framework_TestCase
         $before = DatabaseBuilder::fromSql($this->res("minimal.sql"));
         $after = DatabaseBuilder::fromSql($this->res("full.sql"));
         $expected = [
-            "ALTER TABLE `credential` ENGINE=InnoDB, CHARACTER SET latin1",
             "ALTER TABLE `user` ENGINE=InnoDB, CHARACTER SET utf8, AUTO_INCREMENT = 2",
+            "ALTER TABLE `credential` ENGINE=InnoDB, CHARACTER SET latin1",
 
-            "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL, MODIFY `uid` VARCHAR(255) NOT NULL, ADD PRIMARY KEY (`provider`, `uid`), ADD KEY `idx_credential_provider_uid_user` (`provider`, `uid`, `user`), ADD UNIQUE KEY `uni_credential_provider_user` (`provider`, `user`)",
             "ALTER TABLE `user` MODIFY `active` BOOL NOT NULL DEFAULT '0', MODIFY `gender` ENUM('m', 'f') DEFAULT NULL, MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT, MODIFY `nick` VARCHAR(100) NOT NULL, ADD PRIMARY KEY (`id`), ADD KEY `idx_user_gender` (`gender`), ADD UNIQUE KEY `uni_user_nick` (`nick`)",
+            "ALTER TABLE `credential` MODIFY `provider` VARCHAR(255) NOT NULL, MODIFY `uid` VARCHAR(255) NOT NULL, ADD PRIMARY KEY (`provider`, `uid`), ADD KEY `idx_credential_provider_uid_user` (`provider`, `uid`, `user`), ADD UNIQUE KEY `uni_credential_provider_user` (`provider`, `user`)",
 
             "CREATE TABLE IF NOT EXISTS `payload` ( `payload` INT(11) DEFAULT NULL, `cprovider` VARCHAR(255) NOT NULL, `cuid` VARCHAR(255) NOT NULL," .
             " CONSTRAINT `fk_payload_cprovider_cuid__credential_provider_uid` FOREIGN KEY (`cprovider`, `cuid`) REFERENCES `credential` (`provider`, `uid`)" .

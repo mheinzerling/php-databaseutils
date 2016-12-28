@@ -51,12 +51,33 @@ class ForeignKey extends Index
         return "fk_" . $this->fields[0]->getTable()->getName() . "_" . $this->getImplodedFieldNames($this->fields) . "__" . $this->referenceTable->getName() . "_" . $this->getImplodedFieldNames($this->referenceFields);
     }
 
-    /**
-     * @return Table
-     */
     public function getReferenceTable(): Table
     {
         return $this->referenceTable;
+    }
+
+    /**
+     * @return Field[]
+     */
+    public function getReferenceFields(): array
+    {
+        return $this->referenceFields;
+    }
+
+    /**
+     * @return ReferenceOption
+     */
+    public function getOnUpdate(): ReferenceOption
+    {
+        return $this->onUpdate;
+    }
+
+    /**
+     * @return ReferenceOption
+     */
+    public function getOnDelete(): ReferenceOption
+    {
+        return $this->onDelete;
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection

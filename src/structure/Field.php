@@ -110,4 +110,20 @@ class Field
         return $result;
     }
 
+    public function isAutoincrement(): bool
+    {
+        return $this->autoincrement;
+    }
+
+    public function optional(): bool
+    {
+        return $this->null;
+    }
+
+    public function default(): ?string
+    {
+        return $this->default;
+    }
+
+
 }

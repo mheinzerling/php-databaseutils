@@ -64,12 +64,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mheinzerling/php-arrayutils.git",
-                "reference": "3a4bf2584564781f0bd3d0e880038e8da8cfcc11"
+                "reference": "ad2bd87ef43c010f9bb3139dc1ba7b5e7f7c3972"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mheinzerling/php-arrayutils/zipball/3a4bf2584564781f0bd3d0e880038e8da8cfcc11",
-                "reference": "3a4bf2584564781f0bd3d0e880038e8da8cfcc11",
+                "url": "https://api.github.com/repos/mheinzerling/php-arrayutils/zipball/ad2bd87ef43c010f9bb3139dc1ba7b5e7f7c3972",
+                "reference": "ad2bd87ef43c010f9bb3139dc1ba7b5e7f7c3972",
                 "shasum": ""
             },
             "require": {
@@ -96,7 +96,7 @@
                 }
             ],
             "description": "This is a small library collection array utilities.",
-            "time": "2016-12-15 14:02:22"
+            "time": "2016-12-30 15:18:29"
         },
         {
             "name": "mheinzerling/stringutils",
@@ -104,12 +104,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mheinzerling/php-stringutils.git",
-                "reference": "8c20b53fb3257f76d9cfa48f0eb217afc8ad9dcd"
+                "reference": "5a80f16dcc20e4f7b29089fc384f45b0f1edb845"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mheinzerling/php-stringutils/zipball/8c20b53fb3257f76d9cfa48f0eb217afc8ad9dcd",
-                "reference": "8c20b53fb3257f76d9cfa48f0eb217afc8ad9dcd",
+                "url": "https://api.github.com/repos/mheinzerling/php-stringutils/zipball/5a80f16dcc20e4f7b29089fc384f45b0f1edb845",
+                "reference": "5a80f16dcc20e4f7b29089fc384f45b0f1edb845",
                 "shasum": ""
             },
             "require": {
@@ -136,7 +136,7 @@
                 }
             ],
             "description": "StringUtils class is similar to Apache Commons StringUtils for Java. It will be extended incrementally.",
-            "time": "2016-12-08 05:07:36"
+            "time": "2016-12-30 15:05:44"
         }
     ],
     "packages-dev": [
@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeclimate/php-test-reporter.git",
-                "reference": "0186c8eb03c677b64b9d23dc0cb5c9475553c7c5"
+                "reference": "0edc2e1b8ca47b74c326c925a6a0f083126a152d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeclimate/php-test-reporter/zipball/0186c8eb03c677b64b9d23dc0cb5c9475553c7c5",
-                "reference": "0186c8eb03c677b64b9d23dc0cb5c9475553c7c5",
+                "url": "https://api.github.com/repos/codeclimate/php-test-reporter/zipball/0edc2e1b8ca47b74c326c925a6a0f083126a152d",
+                "reference": "0edc2e1b8ca47b74c326c925a6a0f083126a152d",
                 "shasum": ""
             },
             "require": {
@@ -204,7 +204,7 @@
                 "codeclimate",
                 "coverage"
             ],
-            "time": "2016-09-22 16:57:58"
+            "time": "2016-12-29 16:42:14"
         },
         {
             "name": "doctrine/instantiator",
@@ -718,16 +718,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "4.0.3",
+            "version": "4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "903fd6318d0a90b4770a009ff73e4a4e9c437929"
+                "reference": "c14196e64a78570034afd0b7a9f3757ba71c2a0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/903fd6318d0a90b4770a009ff73e4a4e9c437929",
-                "reference": "903fd6318d0a90b4770a009ff73e4a4e9c437929",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c14196e64a78570034afd0b7a9f3757ba71c2a0a",
+                "reference": "c14196e64a78570034afd0b7a9f3757ba71c2a0a",
                 "shasum": ""
             },
             "require": {
@@ -777,7 +777,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-11-28 16:00:31"
+            "time": "2016-12-20 15:22:42"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -962,16 +962,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.4",
+            "version": "5.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "af91da3f2671006ff5d0628023de3b7ac4d1ef09"
+                "reference": "50fd2be8f3e23e91da825f36f08e5f9633076ffe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/af91da3f2671006ff5d0628023de3b7ac4d1ef09",
-                "reference": "af91da3f2671006ff5d0628023de3b7ac4d1ef09",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/50fd2be8f3e23e91da825f36f08e5f9633076ffe",
+                "reference": "50fd2be8f3e23e91da825f36f08e5f9633076ffe",
                 "shasum": ""
             },
             "require": {
@@ -1040,7 +1040,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-12-13 16:19:44"
+            "time": "2016-12-28 07:18:51"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

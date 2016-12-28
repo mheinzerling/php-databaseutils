@@ -49,7 +49,7 @@ class TestDatabaseConnection extends LoggingPDO
 
     public function getAssertableLog(): string
     {
-        $withoutTime = preg_replace("@\d+\.\d+@", "X", $this->getLog());
+        $withoutTime = preg_replace("@\d+\.\d+(E-\d+)?@", "X", $this->getLog());
         $withoutStartingWhitespace = preg_replace("@^\s+@m", "", $withoutTime);
         $fixStartingZeroTime = preg_replace("@^0@m", "X", $withoutStartingWhitespace);
         $withoutWindowsLinebreak = str_replace("\r", "", $fixStartingZeroTime);

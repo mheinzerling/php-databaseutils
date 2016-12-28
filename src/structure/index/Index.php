@@ -51,6 +51,13 @@ class Index
         }, $this->fields);
     }
 
+    /**
+     * @return Field[]
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
 
     public static function fromSql(TableBuilder $tb, string $constraint): void
     {
