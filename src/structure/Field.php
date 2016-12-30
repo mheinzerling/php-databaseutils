@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace mheinzerling\commons\database\structure;
 
 
+use mheinzerling\commons\database\structure\type\IntType;
 use mheinzerling\commons\database\structure\type\Type;
 
 class Field
@@ -90,8 +91,20 @@ class Field
     public function modifySql(Field $before, SqlSetting $setting): ?string
     {
         //TODO rename
-        $diff = $this->type != $before->type || $this->null != $before->null || $this->default != $before->default || $this->autoincrement != $before->autoincrement;
-        if (!$diff) return null;
+        $ta = $this->type;
+        $tb = $before->type;
+        $typeChange = $ta != $tb;
+        if ($typeChange && $ta instanceof IntType && $tb instanceof IntType) {
+            //TODO default
+            if ($ta->getZerofillLength() == null && $tb->getZerofillLength() == 11) $typeChange = false;
+            else if ($ta->getZerofillLength() == 11 && $tb->getZerofillLength() == null) $typeChange = false;
+        }
+        $nullChange = $this->null != $before->null;
+        $defaultChange = $this->default != $before->default;
+        $autoincrementChange = $this->autoincrement != $before->autoincrement;
+        $change = $typeChange || $nullChange || $defaultChange || $autoincrementChange;
+
+        if (!$change) return null;
         return 'MODIFY ' . $this->toSql($setting);
     }
 

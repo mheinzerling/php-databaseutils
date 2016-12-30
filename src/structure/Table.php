@@ -208,7 +208,8 @@ class Table
         if ($this->engine != $before->engine) $meta[] = "ENGINE=" . $this->engine;
         if ($this->charset != $before->charset) $meta[] = "CHARACTER SET " . $this->charset;
         if ($this->collation != $before->collation) $meta[] = "COLLATE " . $this->collation;
-        if ($this->currentAutoincrement != $before->currentAutoincrement) $meta[] = "AUTO_INCREMENT = " . $this->currentAutoincrement;
+        if ($this->currentAutoincrement != $before->currentAutoincrement && $this->currentAutoincrement != null)
+            $meta[] = "AUTO_INCREMENT = " . $this->currentAutoincrement;
         if (count($meta) > 0) {
             $migration->tableMeta('ALTER TABLE `' . $this->name . '` ' . implode(", ", $meta));
         }

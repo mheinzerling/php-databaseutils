@@ -31,4 +31,8 @@ class IntType extends Type
         return '->type(Type::int(' . $this->zerofillLength . '))';
     }
 
+    public function getZerofillLength():?int
+    {
+        return $this->zerofillLength;
+    }
 }

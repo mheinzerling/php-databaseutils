@@ -137,7 +137,10 @@ class Index
 
     public function same(Index $other): bool
     {
-        return get_class($this) == get_class($other) && $this->table->same($other->table) && array_keys($this->fields) == array_keys($other->fields);
+        $sameClass = get_class($this) == get_class($other);
+        $sameTable = $this->table->same($other->table);
+        $sameFields = array_keys($this->fields) == array_keys($other->fields);
+        return $sameClass && $sameTable && $sameFields;
     }
 
     public function toBuilderCode(): string
