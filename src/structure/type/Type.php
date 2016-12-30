@@ -22,7 +22,7 @@ abstract class Type
         return new BoolType();
     }
 
-    public static function varchar(int $length, string $collation = null): VarcharType
+    public static function varchar(?int $length, string $collation = null): VarcharType
     {
         return new VarcharType($length, $collation);
     }
