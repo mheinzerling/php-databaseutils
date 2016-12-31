@@ -80,6 +80,7 @@ class DatabaseUtils
             try {
                 if (StringUtils::startsWith($query, "/*!50503 select", true)) continue;
                 if (StringUtils::startsWith($query, "SELECT", true)) continue;
+                if (StringUtils::startsWith($query, "--", true)) continue;
                 $pdo->exec($query);
             } catch (\PDOException $e) {
                 if ($e->getMessage() == "SQLSTATE[HY000]: General error: trying to execute an empty query") continue;

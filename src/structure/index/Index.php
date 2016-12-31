@@ -47,7 +47,7 @@ class Index
     public function getFieldNames(): array
     {
         return array_map(function (Field $f) {
-            $f->getName();
+            return $f->getName();
         }, $this->fields);
     }
 

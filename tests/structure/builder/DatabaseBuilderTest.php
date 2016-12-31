@@ -5,6 +5,7 @@ namespace mheinzerling\commons\database\structure\builder;
 
 use mheinzerling\commons\database\DatabaseUtils;
 use mheinzerling\commons\database\structure\index\ReferenceOption;
+use mheinzerling\commons\database\structure\SqlSetting;
 use mheinzerling\commons\database\structure\type\Type;
 use mheinzerling\commons\database\TestDatabaseConnection;
 
@@ -97,6 +98,25 @@ class DatabaseBuilderTest extends \PHPUnit_Framework_TestCase
             ->field("cuid")->type(Type::varchar(255))
             ->build();
         static::assertEquals($expected, DatabaseBuilder::fromSql($sql));
+
+
+        //test some getters
+        $this->assertEquals(['id' => 'id'], $expected->getTables()['user']->getPrimary()->getFieldNames());
+        $this->assertEquals("user.id", $expected->getTables()['user']->getAutoIncrement()->getFullName());
+        $this->assertEquals([], $expected->getTables()['user']->getForeignKeys());
+
+        $this->assertEquals(['provider' => 'provider', 'uid' => 'uid'], $expected->getTables()['credential']->getPrimary()->getFieldNames());
+        $this->assertEquals(null, $expected->getTables()['credential']->getAutoIncrement());
+        $this->assertEquals(['fk_credential_user__user_id'], array_keys($expected->getTables()['credential']->getForeignKeys()));
+
+        $foreignKey = $expected->getTables()['credential']->getForeignKeys()['fk_credential_user__user_id'];
+        $this->assertEquals(ReferenceOption::CASCADE(), $foreignKey->getOnDelete());
+        $this->assertEquals(ReferenceOption::CASCADE(), $foreignKey->getOnUpdate());
+        $this->assertEquals('user.id', $foreignKey->getReferenceFields()['id']->getFullName());
+
+        $expected->setName("myDb");
+        static::assertEquals("CREATE DATABASE `myDb`;", $expected->toCreateSql(new SqlSetting()));
+        static::assertEquals("DROP DATABASE IF EXISTS `myDb`;", $expected->toDropSql(new SqlSetting()));
 
     }
 }
