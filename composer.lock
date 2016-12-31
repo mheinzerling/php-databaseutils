@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d822198e67a308dbf746a4db83446d4a",
-    "content-hash": "5089e5172f3ca748518d24390cf31932",
+    "hash": "8e849804cd9a0eb20af05416d95612a3",
+    "content-hash": "d6169d08acdc9e8417ce43fbc0e4d232",
     "packages": [
         {
             "name": "eloquent/enumeration",
@@ -60,7 +60,7 @@
         },
         {
             "name": "mheinzerling/arrayutils",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mheinzerling/php-arrayutils.git",
@@ -100,7 +100,7 @@
         },
         {
             "name": "mheinzerling/stringutils",
-            "version": "dev-master",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mheinzerling/php-stringutils.git",
@@ -2221,8 +2221,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "mheinzerling/stringutils": 20,
-        "mheinzerling/arrayutils": 20,
         "codeclimate/php-test-reporter": 20
     },
     "prefer-stable": false,
