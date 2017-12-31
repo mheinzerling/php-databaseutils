@@ -17,6 +17,11 @@ abstract class Type
         return new IntType($length);
     }
 
+    public static function decimal(int $precision, int $scale): IntType
+    {
+        return new DecimalType($precision, $scale);
+    }
+
     public static function bool(): IntType
     {
         return new BoolType();
@@ -62,6 +67,8 @@ abstract class Type
         $result = DatetimeType::parseDatetime($type);
         if ($result != null) return $result;
         $result = EnumType::parseEnum($type);
+        if ($result != null) return $result;
+        $result = DecimalType::parseDecimal($type);
         if ($result != null) return $result;
         throw new \Exception("Unknown sql type: " . $type);
     }
