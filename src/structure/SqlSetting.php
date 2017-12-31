@@ -22,6 +22,10 @@ class SqlSetting
      * @var bool
      */
     public $singleLine = false;
+    /**
+     * @var bool
+     */
+    public $skipForeinKeys = false;
 
     //TODO train setters
     public function singleLine(): SqlSetting

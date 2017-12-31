@@ -181,6 +181,7 @@ class Table
         }
         if (empty($this->indexes)) $sql = substr($sql, 0, -2);
         foreach ($this->indexes as $index) {
+            if ($index instanceof ForeignKey && $setting->skipForeinKeys) continue;
             $sql .= ($setting->singleLine ? "" : "  ") . $index->toSql($setting) . "," . $delimiter;
         }
         if (!empty($this->indexes)) $sql = substr($sql, 0, -2);
